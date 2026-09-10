@@ -92,7 +92,7 @@ class LlamaCppAdapter(RuntimeAdapter):
             self.url = f'http://127.0.0.1:{port}'
             self.key = secrets.token_urlsafe(32)
             # Do not inherit runtime override knobs or credentials from other applications.
-            env = {k: v for k, v in os.environ.items() if not k.startswith(('LLAMA_', 'GGML_', 'HF_'))}
+            env = {k: v for k, v in os.environ.items() if not k.upper().startswith(('LLAMA_', 'GGML_', 'HF_', 'SHARE4AI_'))}
             env['LLAMA_API_KEY'] = self.key
             if gpu_index is not None:
                 env['CUDA_VISIBLE_DEVICES'] = str(int(gpu_index))

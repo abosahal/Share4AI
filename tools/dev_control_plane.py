@@ -55,15 +55,16 @@ def make_server(port=8000, registry=None, token=''):
 
         def do_POST(self):
             self.connection.settimeout(5)
-            if token and not hmac.compare_digest(self.headers.get('Authorization', ''), 'Bearer ' + token):
-                self.send(401, {'error': 'unauthorized'}); return
             if self.path not in ('/v1/nodes/register', '/v1/nodes/heartbeat'):
                 self.send(404, {'error': 'not_found'}); return
             try:
                 length = int(self.headers.get('Content-Length', 0))
                 if not 0 < length <= 65536:
                     self.send(413, {'error': 'payload_limit'}); return
-                payload = json.loads(self.rfile.read(length))
+                raw = self.rfile.read(length)
+                if token and not hmac.compare_digest(self.headers.get('Authorization', ''), 'Bearer ' + token):
+                    self.send(401, {'error': 'unauthorized'}); return
+                payload = json.loads(raw)
                 if not isinstance(payload, dict):
                     raise ValueError()
                 code, result = registry.update(payload, self.path.endswith('/register'))

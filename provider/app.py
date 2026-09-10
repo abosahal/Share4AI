@@ -11,6 +11,7 @@ from .provision import install, atomic_json, verify_install
 from .runtime import LlamaCppAdapter
 from .benchmark import benchmark
 from .control import ControlClient, SharingSession, admission
+from .jobs import JobWorker, JobError
 
 
 class ProviderApp:
@@ -23,6 +24,9 @@ class ProviderApp:
         self.closed = False
         self.runtime = None
         self.sharing = None
+        self.jobs = None
+        self._inference_slot = threading.Lock()
+        self._sharing_lock = threading.RLock()
         self.hardware = None
         self.recommendation = None
         self.result = None
@@ -67,7 +71,7 @@ class ProviderApp:
                 from .runtime import RuntimeFailure
                 from .artifacts import ArtifactError
                 from .control import ControlError
-                message = str(error) if isinstance(error, (RuntimeFailure, ArtifactError, ControlError)) else 'Operation failed; check device and settings, then retry'
+                message = str(error) if isinstance(error, (RuntimeFailure, ArtifactError, ControlError, JobError)) else 'Operation failed; check device and settings, then retry'
                 self.emit('status', message)
             finally:
                 self.emit('working', False)
@@ -108,6 +112,7 @@ class ProviderApp:
         self.emit('status', 'Local AI ready — benchmark required for sharing')
 
     def run_benchmark(self):
+        self.stop_sharing()
         self.result = None
         self.start_local()
         self.busy = True
@@ -120,6 +125,7 @@ class ProviderApp:
             self.busy = False
 
     def chat(self, messages):
+        self.stop_sharing()  # Owner local use cancels remote work before touching runtime.
         self.busy = True
         try:
             self.start_local()
@@ -136,33 +142,45 @@ class ProviderApp:
         hardware = scan(self.root)
         gpu = next((g for g in hardware.gpus if self.record and g.index == self.record['gpu_index']), None)
         state, reason = admission(bool(self.runtime and self.runtime.health()), bool(self.result and self.result.passed),
-                                  gpu, int(self.settings['maximum']), self.busy)
-        # Sprint 1 advertises discovery only. A router must never dispatch jobs to this alpha.
-        if state == 'AVAILABLE':
-            state, reason = 'LIMITED', 'Job transport is scheduled for Sprint 2'
+                                  gpu, int(self.settings['maximum']), self.busy or bool(self.jobs and self.jobs.active))
+        transport_ready = bool(self.jobs and not self.jobs.stopping.is_set())
+        if state == 'AVAILABLE' and not transport_ready:
+            state, reason = 'LIMITED', 'Job worker not running'
         capabilities = dict(runtime='llama.cpp', runtime_version=self.record['runtime_version'] if self.record else None,
             model_id=self.record['model']['id'] if self.record else None,
             model_sha256=self.record['model']['artifact']['sha256'] if self.record else None,
             context=self.record['model']['context'] if self.record else 0, max_concurrency=1,
-            accepts_jobs=False, local_ai=True)
+            accepts_jobs=transport_ready, local_ai=True)
         return dict(state=state, reason=reason, max_gpu_usage=self.settings['maximum'],
                     capabilities=capabilities, telemetry=dict(utilization=gpu.utilization if gpu else None,
                         temperature=gpu.temperature if gpu else None, free_vram_mb=gpu.free_mb if gpu else None),
                     benchmark=self.result.to_dict() if self.result else None)
 
     def start_sharing(self):
-        if self.cancel.is_set() or self.closed:
-            return
-        if self.sharing and self.sharing.enabled:
-            return
-        client = ControlClient(self.settings['control_plane'], os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))
-        self.sharing = SharingSession(client, self.node_id, self.snapshot, lambda s: self.emit('sharing', s))
-        self.sharing.start()
-        self.emit('status', 'Registration enabled; network jobs are not enabled in this alpha')
+        with self._sharing_lock:
+            if self.cancel.is_set() or self.closed:
+                return
+            if self.sharing and self.sharing.enabled:
+                return
+            if not self.runtime or not self.runtime.health() or not self.result or not self.result.passed:
+                raise JobError('Start Local AI and pass benchmark before sharing')
+            client = ControlClient(self.settings['control_plane'], os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))
+            self.sharing = SharingSession(client, self.node_id, self.snapshot, lambda s: self.emit('sharing', s))
+            self.jobs = JobWorker(client, self.node_id, self.runtime,
+                lambda: self.sharing.enabled and self.sharing.connected and self.snapshot()['state'] == 'AVAILABLE',
+                lambda: self.record['model']['artifact']['sha256'], slot=self._inference_slot)
+            self.sharing.start()
+            self.jobs.start()
+            self.emit('status', 'Sharing started; jobs run only while device is eligible')
 
     def stop_sharing(self):
-        if self.sharing:
-            self.sharing.stop()
+        with self._sharing_lock:
+            if self.sharing:
+                self.sharing.enabled = False
+            if self.jobs:
+                self.jobs.stop()
+            if self.sharing:
+                self.sharing.stop()
 
     def save_settings(self, address, maximum):
         ControlClient(address, os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))

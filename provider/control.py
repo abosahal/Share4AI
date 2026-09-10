@@ -1,4 +1,4 @@
-"""Versioned outbound registration. Never sends chat messages."""
+"""Versioned outbound HTTP transport; no body or credential logging."""
 import json
 import math
 import threading

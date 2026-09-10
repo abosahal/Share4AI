@@ -18,7 +18,7 @@ class LifecycleTests(unittest.TestCase):
     def test_owned_process_loopback_hidden_and_stop(self):
         process = MagicMock(); process.poll.return_value = None
         runtime = LlamaCppAdapter(self.exe)
-        with patch('provider.runtime.subprocess.Popen', return_value=process) as launch, patch.object(runtime, 'health', return_value=True):
+        with patch.dict('os.environ', {'SHARE4AI_PROVIDER_TOKEN': 'secret'}), patch('provider.runtime.subprocess.Popen', return_value=process) as launch, patch.object(runtime, 'health', return_value=True):
             runtime.start(self.model, gpu_index=1)
             args, kwargs = launch.call_args
             self.assertEqual(args[0][args[0].index('--host') + 1], '127.0.0.1')
@@ -26,6 +26,7 @@ class LifecycleTests(unittest.TestCase):
             self.assertNotIn('--api-key', args[0])
             self.assertEqual(kwargs['env']['CUDA_VISIBLE_DEVICES'], '1')
             self.assertTrue(kwargs['env']['LLAMA_API_KEY'])
+            self.assertNotIn('SHARE4AI_PROVIDER_TOKEN', kwargs['env'])
             runtime.stop()
             process.terminate.assert_called_once()
             self.assertIsNone(runtime.process)
