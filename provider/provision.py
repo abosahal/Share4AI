@@ -39,6 +39,8 @@ def install(root, recommendation, cancel=None, progress=lambda message: None, ca
     runtime_root = root / 'runtimes'
     runtime_root.mkdir(parents=True, exist_ok=True)
     executable = extract_archives(archives, runtime_root / (catalog['runtime_version'] + '-' + uuid.uuid4().hex))
+    if cancel.is_set():
+        raise Cancelled('Install cancelled before activation')
     inventory = {str(p.relative_to(root)): sha256(p) for p in executable.parent.rglob('*') if p.is_file()}
     record = dict(model=model, model_path=str(model_path.relative_to(root)),
                   executable=str(executable.relative_to(root)), runtime_version=catalog['runtime_version'],
@@ -56,6 +58,10 @@ def checked_path(root, relative):
 
 
 def verify_install(root, record):
+    catalog = load_catalog()
+    approved = next((m for m in catalog['models'] if m['id'] == record['model']['id']), None)
+    if approved != record['model'] or record['runtime_version'] != catalog['runtime_version']:
+        raise ArtifactError('Installed manifest is not in the approved catalog')
     model = checked_path(root, record['model_path'])
     if sha256(model) != record['model']['artifact']['sha256']:
         raise ArtifactError('Installed model was modified; reinstall')
@@ -63,6 +69,9 @@ def verify_install(root, record):
     inventory = record.get('inventory', {})
     if record['executable'] not in inventory:
         raise ArtifactError('Runtime inventory missing executable')
+    actual = {str(p.relative_to(root)) for p in binary.parent.rglob('*') if p.is_file()}
+    if actual != set(inventory):
+        raise ArtifactError('Runtime directory contents changed; reinstall')
     for name, digest in inventory.items():
         if sha256(checked_path(root, name)) != digest:
             raise ArtifactError('Installed runtime was modified; reinstall')

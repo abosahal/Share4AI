@@ -31,6 +31,8 @@ class ProviderApp:
         self.node_id = self._read('identity.json', {}).get('node_id') or str(uuid.uuid4())
         atomic_json(self.root / 'identity.json', dict(node_id=self.node_id))
         self.busy = False
+        self._operation_lock = threading.Lock()
+        self._generation = 0
         self.worker = threading.Thread(target=self._work, daemon=True)
         self.worker.start()
 
@@ -45,16 +47,18 @@ class ProviderApp:
 
     def submit(self, action):
         if not self.closed:
-            self.operations.put(action)
+            self.operations.put((self._generation, action))
 
     def _work(self):
         while True:
-            action = self.operations.get()
-            if action is None:
+            item = self.operations.get()
+            if item is None:
                 return
-            if self.closed:
-                continue
-            self.cancel.clear()
+            generation, action = item
+            with self._operation_lock:
+                if self.closed or generation != self._generation:
+                    continue
+                self.cancel.clear()
             self.emit('working', True)
             try:
                 action()
@@ -95,6 +99,9 @@ class ProviderApp:
             self.runtime.stop()
         self.emit('status', 'Verifying installed files')
         binary, model = verify_install(self.root, self.record)
+        if self.cancel.is_set():
+            from .runtime import RuntimeFailure
+            raise RuntimeFailure('Start cancelled')
         self.runtime = LlamaCppAdapter(binary)
         self.emit('status', 'Starting local model')
         self.runtime.start(model, self.record['gpu_index'], self.record['model']['context'], self.cancel)
@@ -144,6 +151,8 @@ class ProviderApp:
                     benchmark=self.result.to_dict() if self.result else None)
 
     def start_sharing(self):
+        if self.cancel.is_set() or self.closed:
+            return
         if self.sharing and self.sharing.enabled:
             return
         client = ControlClient(self.settings['control_plane'], os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))
@@ -165,7 +174,9 @@ class ProviderApp:
         self.emit('status', 'Settings saved; sharing stopped')
 
     def stop_all(self):
-        self.cancel.set()
+        with self._operation_lock:
+            self._generation += 1
+            self.cancel.set()
         if self.sharing:
             self.sharing.enabled = False
         if self.runtime:

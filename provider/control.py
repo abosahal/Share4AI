@@ -48,7 +48,9 @@ class ControlClient:
                     raise ControlError('Invalid registration acknowledgment')
                 return result
         except urllib.error.HTTPError as error:
-            raise ControlError('Control Plane rejected request', error.code) from None
+            status = error.code
+            error.close()
+            raise ControlError('Control Plane rejected request', status) from None
         except (OSError, ValueError):
             raise ControlError('Control Plane unavailable') from None
 

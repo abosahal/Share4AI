@@ -9,6 +9,7 @@ import subprocess
 import threading
 import time
 import urllib.request
+import urllib.error
 
 
 class RuntimeFailure(RuntimeError):
@@ -76,6 +77,8 @@ class LlamaCppAdapter(RuntimeAdapter):
 
     def start(self, model, gpu_index=None, context=4096, cancel=None):
         cancel = cancel or threading.Event()
+        if cancel.is_set():
+            raise RuntimeFailure('Runtime start cancelled')
         if not 512 <= context <= 8192:
             raise RuntimeFailure('Invalid context size')
         with self._lock:
@@ -121,6 +124,9 @@ class LlamaCppAdapter(RuntimeAdapter):
             req = urllib.request.Request(self.url + '/v1/models', headers={'Authorization': 'Bearer ' + self.key})
             with self._opener.open(req, timeout=2) as response:
                 return bool(json.load(response).get('data'))
+        except urllib.error.HTTPError as error:
+            error.close()
+            return False
         except (OSError, ValueError):
             return False
 
@@ -148,7 +154,10 @@ class LlamaCppAdapter(RuntimeAdapter):
                     if cancel.is_set() or time.monotonic() > deadline:
                         raise RuntimeFailure('Inference cancelled or timed out')
                     yield event
-        except (OSError, ValueError) as exc:
+        except urllib.error.HTTPError as error:
+            error.close()
+            raise RuntimeFailure('Runtime rejected request') from None
+        except (OSError, ValueError):
             raise RuntimeFailure('Runtime connection failed') from None
         finally:
             self._inference.release()

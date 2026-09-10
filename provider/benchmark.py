@@ -1,7 +1,6 @@
 from dataclasses import dataclass, asdict
 from datetime import datetime, timezone
 import math
-import statistics
 import time
 from .runtime import RuntimeFailure
 
