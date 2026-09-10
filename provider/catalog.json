@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "runtime_version": "b10868",
+  "runtimes": {
+    "windows-cpu": [
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10868/llama-b10868-bin-win-cpu-x64.zip",
+        "size": 18426545,
+        "sha256": "91806de68216cae6f82b4237661cd0e217682d5cb75c18280d591a030d46ab50",
+        "signature": null,
+        "digest_source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10868"
+      }
+    ],
+    "windows-cuda": [
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10868/llama-b10868-bin-win-cuda-12.4-x64.zip",
+        "size": 254079122,
+        "sha256": "841941490b3461328c44eb110f26adf1b1d8ee101b0eae16db7be6d78c4ff88f",
+        "signature": null,
+        "digest_source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10868"
+      },
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10868/cudart-llama-bin-win-cuda-12.4-x64.zip",
+        "size": 391443627,
+        "sha256": "8c79a9b226de4b3cacfd1f83d24f962d0773be79f1e7b75c6af4ded7e32ae1d6",
+        "signature": null,
+        "digest_source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10868"
+      }
+    ]
+  },
+  "models": [
+    {
+      "id": "qwen3.5-4b-q4_k_m",
+      "family": "Qwen3.5",
+      "revision": "e87f176479d0855a907a41277aca2f8ee7a09523",
+      "quantization": "Q4_K_M",
+      "required_vram_mb": 4608,
+      "required_ram_mb": 6144,
+      "context": 4096,
+      "source": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF",
+      "license": "Apache-2.0 (upstream Qwen; retain notices)",
+      "artifact": {
+        "url": "https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/e87f176479d0855a907a41277aca2f8ee7a09523/Qwen3.5-4B-Q4_K_M.gguf",
+        "size": 2740937888,
+        "sha256": "00fe7986ff5f6b463e62455821146049db6f9313603938a70800d1fb69ef11a4",
+        "signature": null,
+        "digest_source": "https://huggingface.co/api/models/unsloth/Qwen3.5-4B-GGUF/revision/e87f176479d0855a907a41277aca2f8ee7a09523?blobs=true"
+      }
+    },
+    {
+      "id": "qwen3.5-9b-q4_k_m",
+      "family": "Qwen3.5",
+      "revision": "3885219b6810b007914f3a7950a8d1b469d598a5",
+      "quantization": "Q4_K_M",
+      "required_vram_mb": 8192,
+      "required_ram_mb": 10240,
+      "context": 4096,
+      "source": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF",
+      "license": "Apache-2.0 (upstream Qwen; retain notices)",
+      "artifact": {
+        "url": "https://huggingface.co/unsloth/Qwen3.5-9B-GGUF/resolve/3885219b6810b007914f3a7950a8d1b469d598a5/Qwen3.5-9B-Q4_K_M.gguf",
+        "size": 5680522464,
+        "sha256": "03b74727a860a56338e042c4420bb3f04b2fec5734175f4cb9fa853daf52b7e8",
+        "signature": null,
+        "digest_source": "https://huggingface.co/api/models/unsloth/Qwen3.5-9B-GGUF/revision/3885219b6810b007914f3a7950a8d1b469d598a5?blobs=true"
+      }
+    }
+  ]
+}
