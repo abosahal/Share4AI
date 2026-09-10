@@ -30,7 +30,7 @@ Max GPU Usage في الأساس حد admission ومراقبة تعلّق الم�
 
 Register: node_id ثابت عشوائي، protocol_version، app_version، capabilities (runtime/model/hash/context/max_concurrency)، benchmark، device metadata. Heartbeat: node_id، state، sharing_enabled، max_gpu_usage، telemetry، capabilities. الخادم يصدر acknowledgment ولا يستنتج disponibilité من مجرد التسجيل. heartbeat كل 5s، lease/TTL مقترح 20s؛ 404 يعيد التسجيل، فشل الاتصال يمنع إظهار AVAILABLE في الواجهة، retries محدودة بتأخير.
 
-النسخة المنفذة الآن تعلن `accepts_jobs=false` وحالة LIMITED حتى لو نجحت أهلية الموارد. Start Sharing يفعّل التسجيل والheartbeat فقط. الإعلان AVAILABLE مؤجل إلى أن توجد قناة Jobs فعالة ومختبرة. المرجع `tools/dev_control_plane.py` يفرض LIMITED ولا يوجه مهام؛ مخزنه مؤقت للاختبار فقط.
+تحديث 2026-09-10: أُضيف JobWorker outbound داخل التطبيق. تعلن النسخة `accepts_jobs=true` فقط مع worker فعال؛ AVAILABLE يحتاج runtime وbenchmark وtelemetry مناسبة. `tools/pilot_control_plane.py` يوجّه مهمة واحدة إلى مزود موثوق محليًا مع HMAC وتحقق audience/model/deadline وتسلسل أحداث، ويرجع SSE للعميل. المرجع القديم `tools/dev_control_plane.py` يظل registration-only. كلا المخزنين مؤقتان للاختبار. عقد المسارات والحدود وإلغاء المهمة في PILOT_JOBS.md.
 
 Production: TLS وcredential منفصل لكل مزود، لا token داخل logs أو URL. مرجع محلي للاختبار فقط يمكن أن يستخدم HTTP loopback. لا إطلاق عام لهذا المرجع.
 

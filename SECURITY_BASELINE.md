@@ -1,5 +1,9 @@
 # Share4AI — Security baseline
 
+## Job pilot update — 2026-09-10
+
+The local pilot now implements separate client/provider bearer credentials, provider-bound HMAC task envelopes, node/model/deadline verification, replay rejection, ordered result events and cancellation. Runtime subprocesses do not inherit SHARE4AI credentials. Client task content never enters desktop chat events. Details and limits are in PILOT_JOBS.md. This is one trusted provider on loopback, not a replacement for production TLS, per-node enrollment/revocation, persistence or confidential execution.
+
 ## Security promise
 
 لا تدريب على المحادثات، لا محتوى عملاء في logs أو لوحة المزود، وتقليل الاحتفاظ والصلاحيات. نقل الإنتاج مشفر، وتخزين history المستقبلي مشفر مع KMS منفصل. Local AI بعد provisioning لا يرسل المحادثة إلى المنصة.

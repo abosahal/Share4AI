@@ -24,7 +24,7 @@ CPU fallback is for Local AI trials. NVIDIA sharing eligibility requires live te
 
 ## Deliberate alpha limits
 
-**Start Sharing currently enables registration and health reporting. It does not accept customer jobs.** It advertises `accepts_jobs=false` and cannot become routable AVAILABLE. The outbound job worker and authenticated job streaming belong to the next slice. Max GPU Usage is an admission threshold, **not a hard percentage cap**. Full gaming detection, live resource preemption, persistent production Control Plane, multi-node routing and signed installer remain on the roadmap.
+**Start Sharing now supports authenticated outbound jobs in a local pilot.** It requires a running model, passing benchmark, eligible telemetry and a provider credential. Stop Sharing cancels active network work; Local AI use stops sharing first. Follow [PILOT_JOBS.md](PILOT_JOBS.md) for the Control Plane and streaming test client. Max GPU Usage is an admission threshold, **not a hard percentage cap**. Full gaming detection, live resource preemption, persistent production Control Plane, multi-node routing and signed installer remain on the roadmap.
 
 The pinned artifacts publish SHA256 digests; detached signatures were not supplied in the catalog. Hash verification is implemented; do not claim signature verification occurred when none was published. Unsloth supplies the GGUF quantizations of upstream Qwen models, rather than an official Qwen GGUF repository. Retain upstream notices when distributing.
 
@@ -32,7 +32,7 @@ Local chat content stays in process memory. No cloud inference or mandatory paid
 
 ## Local Control Plane protocol test
 
-Run `py -3 tools/dev_control_plane.py` in a separate terminal. In Settings use `http://127.0.0.1:8000`, then Start Sharing. View `http://127.0.0.1:8000/v1/nodes` for LIMITED/OFFLINE and capabilities. This fixture has no job router or persistent storage and binds loopback only. A remote endpoint must use HTTPS plus `SHARE4AI_PROVIDER_TOKEN`; production per-provider authentication remains future work.
+For job execution use `py -3 -m tools.pilot_control_plane` and `py -3 -m tools.pilot_chat` with separate provider/client credentials as described in PILOT_JOBS.md. The older `tools/dev_control_plane.py` remains a registration-only test fixture; it never dispatches jobs. Both bind loopback only and have no persistent storage. A remote endpoint must use HTTPS plus `SHARE4AI_PROVIDER_TOKEN`; production enrollment and per-provider key lifecycle remain future work.
 
 ## Development and checks
 
