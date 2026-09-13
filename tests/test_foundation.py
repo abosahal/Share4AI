@@ -55,9 +55,17 @@ class FoundationTests(unittest.TestCase):
         self.assertEqual(list(self.root.iterdir()), [])
 
     def test_untrusted_urls_and_unsupported_signature(self):
-        for url in ['http://github.com/a', 'https://evil.test/a', 'https://user@github.com/a', 'https://github.com:444/a']:
+        for url in ['http://github.com/a', 'https://evil.test/a', 'https://user@github.com/a', 'https://github.com:444/a',
+                    'https://evil.hf.co.attacker.test/a']:
             with self.assertRaises(ArtifactError):
                 validate_url(url)
+        validate_url('https://huggingface.co/unsloth/Qwen3.5-4B-GGUF/resolve/main/model.gguf')
+        validate_url('https://cdn-lfs-eu-1.hf.co/repos/model.gguf', redirect=True)
+        validate_url('https://cas-server.xethub-eu.hf.co/file', redirect=True)
+        validate_url('https://us.aws.cdn.hf.co/file', redirect=True)
+        validate_url('https://release-assets.githubusercontent.com/file', redirect=True)
+        with self.assertRaises(ArtifactError):
+            validate_url('https://cdn-lfs-eu-1.hf.co/file', redirect=False)
         with self.assertRaises(ArtifactError):
             verify_signature(self.root / 'x', {'type': 'unknown'})
 
