@@ -1,4 +1,5 @@
 """Loopback-only protocol fixture, not a production control plane or job router."""
+from provider.i18n import tr
 import hmac
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -76,7 +77,7 @@ def make_server(port=8000, registry=None, token=''):
 
 if __name__ == '__main__':
     server = make_server(token=os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))
-    print('Share4AI local protocol fixture: http://127.0.0.1:8000 (no jobs, no persistence)')
+    print(tr('Share4AI local protocol fixture: http://127.0.0.1:8000 (no jobs, no persistence)'))
     try:
         server.serve_forever()
     except KeyboardInterrupt:

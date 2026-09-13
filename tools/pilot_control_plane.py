@@ -1,4 +1,5 @@
 """Authenticated, loopback-only one-provider pilot. In-memory; never deploy publicly."""
+from provider.i18n import tr
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import hmac
 import json
@@ -12,7 +13,7 @@ from provider.jobs import sign_job, validate_messages, JobError
 class Broker:
     def __init__(self, provider_token, clock=time.time):
         if not provider_token:
-            raise ValueError('Provider token is required')
+            raise ValueError(tr('Provider token is required'))
         self.token, self.clock = provider_token, clock
         self.condition = threading.Condition()
         self.node_id = None
@@ -138,7 +139,7 @@ class Broker:
 
 def make_server(provider_token, client_token, port=8000):
     if not provider_token or not client_token or provider_token == client_token:
-        raise ValueError('Two distinct nonempty credentials are required')
+        raise ValueError(tr('Two distinct nonempty credentials are required'))
     broker = Broker(provider_token)
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *args):
@@ -208,7 +209,7 @@ def make_server(provider_token, client_token, port=8000):
 
 if __name__ == '__main__':
     server = make_server(os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''), os.environ.get('SHARE4AI_CLIENT_TOKEN', ''))
-    print('Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only')
+    print(tr('Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only'))
     try:
         server.serve_forever()
     except KeyboardInterrupt:
