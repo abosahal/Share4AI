@@ -1,13 +1,14 @@
 from provider.i18n import tr as translate, display_message as translate_message, TEXT
 from .preferences import load_language, save_language
 import re
+import os
 import threading
 import tkinter as tk
 from tkinter import ttk
 from .app import ProviderApp
 
 
-def launch(state_dir=None):
+def launch(state_dir=None, on_ready=None):
     app = ProviderApp(state_dir)
     language = load_language(app.root)
     def tr(source, **values):
@@ -64,7 +65,12 @@ def launch(state_dir=None):
     ttk.Label(setup, textvariable=network).pack(anchor='w')
     ttk.Label(setup, text=tr('Sharing requires a passing benchmark and a provider credential. Stop Sharing cancels the current network job. Local AI stops sharing first.'), wraplength=800).pack(anchor='w')
     share = ttk.Frame(setup); share.pack(anchor='w', pady=8)
-    button = ttk.Button(share, text=tr('Start Sharing'), command=lambda: app.submit(app.start_sharing))
+    def start_share():
+        if not os.environ.get('SHARE4AI_PROVIDER_TOKEN'):
+            status.set(tr('Sharing activation is not available in this trial. You can use Local AI.'))
+            return
+        app.submit(app.start_sharing)
+    button = ttk.Button(share, text=tr('Start Sharing'), command=start_share)
     button.pack(side='left', padx=3); buttons.append(button)
     ttk.Button(share, text=tr('Stop Sharing'), command=lambda: threading.Thread(target=app.stop_sharing, daemon=True).start()).pack(side='left', padx=3)
     transcript = tk.Text(chat, wrap='word', font=('Segoe UI', 11), state='disabled')
@@ -90,11 +96,16 @@ def launch(state_dir=None):
     ttk.Label(chat, text=tr('Local conversation stays in memory and is not saved to history.')).pack(anchor='w')
     address = tk.StringVar(value=app.settings['control_plane'])
     maximum = tk.IntVar(value=app.settings['maximum'])
-    ttk.Label(settings, text=tr('Control Plane address')).pack(anchor='w')
-    ttk.Entry(settings, textvariable=address, width=65).pack(anchor='w', pady=6)
+    advanced = ttk.Frame(settings)
+    def toggle_advanced():
+        if advanced.winfo_manager(): advanced.pack_forget()
+        else: advanced.pack(fill='x', pady=8)
+    ttk.Button(settings, text=tr('Advanced settings (internal testing)'), command=toggle_advanced).pack(anchor='w')
+    ttk.Label(advanced, text=tr('Control Plane address')).pack(anchor='w')
+    ttk.Entry(advanced, textvariable=address, width=65).pack(anchor='w', pady=6)
     ttk.Label(settings, text=tr('Max GPU Usage (%)')).pack(anchor='w', pady=(18, 0))
     ttk.Spinbox(settings, from_=0, to=100, textvariable=maximum, width=8).pack(anchor='w')
-    ttk.Label(settings, text=tr('Operational sharing threshold, not a hard GPU utilization cap.\nHigh usage, heat or missing telemetry prevents availability.\nRemote registration requires HTTPS and SHARE4AI_PROVIDER_TOKEN.'), wraplength=800).pack(anchor='w', pady=12)
+    ttk.Label(settings, text=tr('Sharing pauses when resource usage or temperature is high. This setting does not impose a hard GPU limit. Public sharing activation is coming later.'), wraplength=800).pack(anchor='w', pady=12)
     def save():
         try:
             value = maximum.get()
@@ -213,6 +224,9 @@ def launch(state_dir=None):
         finish()
     window.protocol('WM_DELETE_WINDOW', close)
     orient()
-    app.submit(app.scan_device)
+    if on_ready is None:
+        app.submit(app.scan_device)
+    else:
+        on_ready(window, close)
     pump()
     window.mainloop()

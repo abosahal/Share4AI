@@ -14,8 +14,8 @@
 
 ### البدء السريع — Windows x64
 
-1. ثبّت Python 3.11 أو أحدث من python.org، مع **Tcl/Tk** و**مشغّل Python**.
-2. انقر مرتين على `run_windows.bat`، أو شغّل `py -3 -m provider`. لا تحتاج إلى حزم pip إضافية.
+1. نزّل ملف **Share4AI-Setup-1.1.0-windows-x64.exe** المرفق بالنسخة التجريبية وافتحه ثم اضغط **تثبيت**. يتضمن متطلبات التشغيل؛ لا تحتاج Python أو الطرفية.
+2. افتح **Share4AI** من اختصار سطح المكتب أو قائمة ابدأ. واجهة التثبيت والتطبيق تبدأ بالعربية.
 3. اتبع: **فحص الجهاز → التنزيل والتحقق → تشغيل الذكاء المحلي → اختبار الأداء**.
 4. استخدم تبويب **Local AI — الذكاء المحلي**. تنزيل Qwen يبلغ نحو 2.7GB لحجم 4B أو 5.7GB لحجم 9B؛ يختار التطبيق بحسب الذاكرة المتاحة. تضيف حزم تشغيل CUDA نحو 646MB. أغلق التطبيقات الأخرى التي تستهلك ذاكرة كبيرة أولًا.
 5. زر **Cancel / Stop AI — إلغاء / إيقاف الذكاء المحلي** يلغي العمل ويوقف محرك التشغيل الذي يديره التطبيق. إعادة المحاولة تبدأ التنزيل المقطوع من جديد؛ استئناف التنزيل من آخر بايت لم يُنفذ بعد.
@@ -83,8 +83,8 @@ Project documentation and the start of Sprint 1. The app runs with llama.cpp wit
 
 ### Quick start — Windows x64
 
-1. Install Python 3.11+ from python.org, including **Tcl/Tk** and the **Python launcher**.
-2. Double-click `run_windows.bat` (or run `py -3 -m provider`). No pip packages are required.
+1. Download **Share4AI-Setup-1.1.0-windows-x64.exe** attached to the trial build, open it and select **Install**. Runtime requirements are bundled; no Python or terminal is needed.
+2. Open **Share4AI** from the desktop or Start menu shortcut. The installer and app default to Arabic.
 3. **Scan → Download & Verify → Start Local AI → Benchmark**.
 4. Use the **Local AI** tab. Qwen downloads are about 2.7GB (4B) or 5.7GB (9B); the app selects based on available memory. CUDA runtime packages add about 646MB. Close other memory-heavy applications first.
 5. **Cancel / Stop AI** cancels work and stops the owned runtime. Retry restarts interrupted downloads; byte-range resume is not yet implemented.

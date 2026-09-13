@@ -6,6 +6,10 @@
 
 ## العربية
 
+### قاعدة ملزمة: أقل معرفة تقنية ممكنة
+
+تنطبق على العميل والمزود: تنزيل مثبت واحد وإكمال الإعداد من داخل التطبيق، دون طرفية أو Python أو أدوات تطوير أو تعديل ملفات أو متغيرات بيئة. العربية افتراضية. يتولى التطبيق اكتشاف الجهاز وتنزيل المحرك والنموذج والتحقق منهما، ويعرض أخطاء مفهومة وخطوة إصلاح واضحة. لا نُسلّم ZIP مصدر باعتباره تطبيقًا جاهزًا. أي مسار تقني متبقٍ يُصنّف اختبارًا داخليًا حتى يُستبدل بتجربة مناسبة للمستخدم. تُحفظ هذه القاعدة أيضًا في AGENTS.md لتوجيه أعمال التطوير اللاحقة.
+
 ### أولوية المستخدمين الأوائل
 
 المستخدمون الأوائل عرب. العربية افتراضية في الواجهة، والإنجليزية خيار إضافي محفوظ. تُصمم رحلة الإعداد والتعليمات والدعم بالعربية أولًا. يجب تقييم جودة العربية واللهجات الشائعة على النماذج قبل اعتمادها للمستخدمين، إلى جانب الأداء؛ اختبار السرعة الحالي لا يثبت جودة الإجابات العربية.
@@ -86,6 +90,10 @@ MVP المستخدم: حسابات ومحادثة streaming، History اختيا
 <a id="en"></a>
 
 ## English
+
+### Mandatory rule: minimal technical knowledge
+
+For both clients and providers: download one installer and complete setup inside the app, without terminals, Python, developer tools, file edits or environment variables. Default to Arabic. The app owns hardware detection and verified model/runtime downloads, with understandable errors and a clear recovery step. Never deliver a source ZIP as a ready application. Remaining technical paths are internal tests until replaced by a user-friendly flow. AGENTS.md also records this rule for future development.
 
 ### Early user priority
 

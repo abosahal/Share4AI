@@ -6,6 +6,8 @@
 
 ## العربية
 
+**للمطورين فقط:** خطوات الطرفية هنا اختبار داخلي للبروتوكول، وليست تجربة عميل أو مزود معتمدة. المستخدم النهائي يحصل على مثبت ويكمل الإعداد داخل التطبيق. التسجيل المبسط بخدمة المشاركة العامة لم يكتمل بعد.
+
 ### ما الذي تغير؟
 
 يحتوي تطبيق المزود الآن على عامل مهام يتصل بالخادم اتصالًا صادرًا. يرسل العميل النص إلى خادم التحكم التجريبي، ويستعلم المزود عن مهمة واحدة موقعة، ثم تعود أجزاء الرد عبر خادم التحكم باستخدام SSE. لا يحتاج المزود إلى منفذ اتصال وارد. لا يدخل نص العميل في سجل Local AI أو أحداث الواجهة أو السجلات التشغيلية.
@@ -69,6 +71,8 @@ py -3 -m tools.pilot_chat
 <a id="en"></a>
 
 ## English
+
+**Developers only:** terminal steps here are internal protocol tests, not an approved client/provider experience. End users receive an installer and complete setup inside the app. Simple public sharing enrollment is not complete yet.
 
 ### What changed
 

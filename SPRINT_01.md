@@ -6,6 +6,10 @@
 
 ## العربية
 
+### دفعة المثبّت المباشر
+
+أُنتج Share4AI-Setup-1.1.0-windows-x64.exe باستخدام PyInstaller وInno Setup، مع Python وTcl/Tk والكتالوج، ودون نافذة طرفية. التثبيت بالعربية وللمستخدم الحالي، مع اختصارات وإزالة من إعدادات Windows. نجح 38 اختبارًا واختبار الواجهة المجمّعة وتبديل اللغة، ثم التثبيت وإعادة التثبيت والإزالة وتشغيل النسخة المثبتة بعد إزالة Python من PATH ومتغيرات Tcl/Python من بيئة عملية الاختبار. تبين أن عطل Tcl السابق مرتبط بالبيئة المقيدة؛ نجح خارجها. لا يمثل هذا اختبار جهاز نظيف دون Python أو تحققًا بصريًا كاملًا من العربية. المثبت التجريبي غير موقع، وتشغيل النموذج الفعلي على GPU والتسجيل المبسط بخدمة مشاركة عامة ما زالا غير مكتملين. أنشئ مسار آلي لبناء المثبت ونشر إصدار تجريبي؛ يُتحقق من نجاح تشغيله على GitHub قبل إعطاء رابط إصدار.
+
 ### دفعة الواجهة العربية الافتراضية
 
 واجهة بلغة واحدة في كل مرة، وتبديل مباشر مع حفظ اللغة في preferences.json مستقل عن إعدادات المشاركة. محاذاة عربية إلى اليمين وترتيب معكوس لأزرار الإعداد، ومؤشر تنزيل وإرشادات للخطوة التالية وصفحة إعداد قابلة للتمرير. نجح 38 اختبارًا؛ اختبار اتجاه النص وتشكيل الحروف ومؤشر الكتابة بصريًا على Windows وتشغيل Qwen الفعلي ما زالا معلقين. دليل التجربة في WINDOWS_TRIAL.md، ولا يُعد هذا اعتمادًا لدعم RTL الكامل أو نسخة إنتاجية.
@@ -86,6 +90,10 @@ Max GPU Usage حد admission وليس hard cap. لا gaming detection أو تع�
 <a id="en"></a>
 
 ## English
+
+### Direct installer increment
+
+Produced Share4AI-Setup-1.1.0-windows-x64.exe using PyInstaller and Inno Setup, bundling Python, Tcl/Tk and the catalog without a terminal window. Arabic per-user setup creates shortcuts and supports Windows uninstall. All 38 tests passed, followed by packaged UI/language switching, install/reinstall/uninstall and installed-app startup with Python removed from PATH and Tcl/Python environment variables cleared in the test process. The earlier Tcl failure was specific to the restricted environment; it works outside it. This does not constitute a clean-machine test without Python or full visual Arabic validation. The trial installer is unsigned; actual GPU inference and simple public sharing enrollment remain incomplete. Added automated installer building and prerelease publishing; verify the GitHub run before supplying a release link.
 
 ### Arabic-default UI increment
 

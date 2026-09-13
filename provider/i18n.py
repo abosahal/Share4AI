@@ -149,6 +149,9 @@ Share4AI local protocol fixture: http://127.0.0.1:8000 (no jobs, no persistence)
 Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only|تجربة Share4AI المحلية الموثقة على 127.0.0.1:8000؛ مزود موثوق واحد؛ تخزين في الذاكرة فقط'''
 TEXT = dict(line.split('|', 1) for line in _ROWS.splitlines())
 TEXT.update({
+    'Sharing activation is not available in this trial. You can use Local AI.': 'تفعيل المشاركة غير متاح في هذه التجربة. يمكنك استخدام الذكاء المحلي.',
+    'Advanced settings (internal testing)': 'إعدادات متقدمة (للاختبار الداخلي)',
+    'Sharing pauses when resource usage or temperature is high. This setting does not impose a hard GPU limit. Public sharing activation is coming later.': 'تُعلّق المشاركة عند ارتفاع استخدام الموارد أو الحرارة. هذا الإعداد لا يفرض سقفًا صارمًا على معالج الرسوميات. تفعيل المشاركة العامة سيُتاح لاحقًا.',
     'Unsupported language': 'اللغة غير مدعومة',
     'Scan, download, start, then test performance.': 'افحص الجهاز، ثم نزّل النموذج وشغّله واختبر الأداء.',
     'Could not save language; check folder access.': 'تعذر حفظ اللغة؛ تحقق من صلاحية الوصول إلى المجلد.',
