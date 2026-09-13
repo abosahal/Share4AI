@@ -149,6 +149,16 @@ Share4AI local protocol fixture: http://127.0.0.1:8000 (no jobs, no persistence)
 Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only|تجربة Share4AI المحلية الموثقة على 127.0.0.1:8000؛ مزود موثوق واحد؛ تخزين في الذاكرة فقط'''
 TEXT = dict(line.split('|', 1) for line in _ROWS.splitlines())
 TEXT.update({
+    'Unsupported language': 'اللغة غير مدعومة',
+    'Scan, download, start, then test performance.': 'افحص الجهاز، ثم نزّل النموذج وشغّله واختبر الأداء.',
+    'Could not save language; check folder access.': 'تعذر حفظ اللغة؛ تحقق من صلاحية الوصول إلى المجلد.',
+    'Download complete. Start Local AI, then test performance.': 'اكتمل التنزيل. شغّل الذكاء المحلي ثم اختبر الأداء.',
+    'Local AI is ready. Test performance before sharing.': 'الذكاء المحلي جاهز. اختبر الأداء قبل المشاركة.',
+    'Stopped. Start Local AI when you are ready.': 'تم الإيقاف. شغّل الذكاء المحلي عندما تكون جاهزًا.',
+    'Model selected. Download and verify its files.': 'تم اختيار النموذج. نزّل ملفاته وتحقق منها.',
+    'Free memory or disk space, then scan again.': 'وفّر ذاكرة أو مساحة على القرص، ثم أعد الفحص.',
+    'Performance passed. Use Local AI or configure sharing.': 'اجتاز الجهاز اختبار الأداء. استخدم الذكاء المحلي أو اضبط المشاركة.',
+    'Use Local AI. Performance is below the sharing target.': 'يمكنك استخدام الذكاء المحلي. الأداء أقل من متطلبات المشاركة.',
     'Downloads: Qwen 4B ≈ 2.7 GB / 9B ≈ 5.7 GB plus runtime.\nModels use published SHA256 checks. Retry restarts an interrupted download.':
         'التنزيلات: Qwen 4B نحو 2.7 GB / 9B نحو 5.7 GB إضافةً إلى المحرك.\nيُتحقق من النماذج باستخدام SHA256 المنشور. تبدأ إعادة المحاولة التنزيل المنقطع من جديد.',
     'Sharing requires a passing benchmark and a provider credential. Stop Sharing cancels the current network job. Local AI stops sharing first.':
@@ -166,25 +176,29 @@ TEXT.update({
 })
 
 
-def tr(source, **values):
+def tr(source, language='both', **values):
     """Translate a known presentation template, retaining its English source."""
+    if language == 'en':
+        return source.format(**values)
+    if language == 'ar':
+        return TEXT[source].format(**values)
     return TEXT[source].format(**values) + ' | ' + source.format(**values)
 
 
-def display_message(source):
+def display_message(source, language='both'):
     """Render owned diagnostic text. Unknown text passes through unchanged."""
     if source in TEXT:
-        return tr(source)
+        return tr(source, language=language)
     for label in ('Runtime', 'Model'):
         match = re.fullmatch(label + r' (\d+)%', source)
         if match:
-            return tr(label + ' {percent}%', percent=match[1])
+            return tr(label + ' {percent}%', language=language, percent=match[1])
     for prefix, template, key in (
         ('Downloading and verifying ', 'Downloading and verifying {model}', 'model'),
         ('Detected display: ', 'Detected display: {names}', 'names'),
     ):
         if source.startswith(prefix):
-            return tr(template, **{key: source[len(prefix):]})
+            return tr(template, language=language, **{key: source[len(prefix):]})
     return source
 
 

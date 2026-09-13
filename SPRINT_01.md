@@ -6,6 +6,10 @@
 
 ## العربية
 
+### دفعة الواجهة العربية الافتراضية
+
+واجهة بلغة واحدة في كل مرة، وتبديل مباشر مع حفظ اللغة في preferences.json مستقل عن إعدادات المشاركة. محاذاة عربية إلى اليمين وترتيب معكوس لأزرار الإعداد، ومؤشر تنزيل وإرشادات للخطوة التالية وصفحة إعداد قابلة للتمرير. نجح 38 اختبارًا؛ اختبار اتجاه النص وتشكيل الحروف ومؤشر الكتابة بصريًا على Windows وتشغيل Qwen الفعلي ما زالا معلقين. دليل التجربة في WINDOWS_TRIAL.md، ولا يُعد هذا اعتمادًا لدعم RTL الكامل أو نسخة إنتاجية.
+
 ### تحديث اللغتين — 2026-09-13
 
 أضيف قسم عربي وآخر إنجليزي إلى الوثائق السبع، ونصوص ثنائية اللغة إلى واجهة المزود ورسائل التنزيل والتشغيل وأدوات التجربة المحلية. بقيت رموز البروتوكول ومحتويات المحادثات كما هي. أضيفت اختبارات لتغطية الأخطاء وقوالب الرسائل ومساعدة الطرفية والحفاظ على نص النموذج أثناء البث. التحقق البصري على Windows ما زال معلقًا بسبب تعذر تهيئة Tcl/Tk في بيئة التنفيذ.
@@ -82,6 +86,10 @@ Max GPU Usage حد admission وليس hard cap. لا gaming detection أو تع�
 <a id="en"></a>
 
 ## English
+
+### Arabic-default UI increment
+
+One UI language at a time, with live switching and a preferences.json file separate from sharing settings. Added right alignment for Arabic, reversed setup button order, download progress, next-step guidance and a scrollable setup page. All 38 tests pass; visual Windows checks of text direction, shaping and caret behavior and actual Qwen inference remain outstanding. WINDOWS_TRIAL.md contains the trial guide. This is not certification of full RTL support or production readiness.
 
 ### Bilingual update — 2026-09-13
 

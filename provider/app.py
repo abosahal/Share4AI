@@ -94,7 +94,8 @@ class ProviderApp:
 
     def start_local(self):
         if not self.record:
-            raise RuntimeError('Install first')
+            from .runtime import RuntimeFailure
+            raise RuntimeFailure('Install first')
         if self.runtime and self.runtime.health():
             self.emit('status', 'Local AI ready')
             return

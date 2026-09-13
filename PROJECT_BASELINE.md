@@ -6,6 +6,10 @@
 
 ## العربية
 
+### أولوية المستخدمين الأوائل
+
+المستخدمون الأوائل عرب. العربية افتراضية في الواجهة، والإنجليزية خيار إضافي محفوظ. تُصمم رحلة الإعداد والتعليمات والدعم بالعربية أولًا. يجب تقييم جودة العربية واللهجات الشائعة على النماذج قبل اعتمادها للمستخدمين، إلى جانب الأداء؛ اختبار السرعة الحالي لا يثبت جودة الإجابات العربية.
+
 الإصدار 1.1 · 2026-09-09 · ذكاء اصطناعي يدعمه المجتمع
 
 ### المرجع وحالة المشروع
@@ -82,6 +86,10 @@ MVP المستخدم: حسابات ومحادثة streaming، History اختيا
 <a id="en"></a>
 
 ## English
+
+### Early user priority
+
+The first users are Arabic speakers. The UI defaults to Arabic, with English as a saved alternative. Onboarding, instructions and support are designed in Arabic first. Models must be evaluated for Arabic and common dialect quality before user approval, alongside performance; the current speed benchmark does not establish Arabic answer quality.
 
 Version 1.1 · 2026-09-09 · Community-powered AI
 

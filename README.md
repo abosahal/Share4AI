@@ -6,7 +6,7 @@
 
 ## العربية
 
-الوثائق والواجهة ورسائل التشغيل متاحة بالعربية والإنجليزية معًا. تُترجم رسائل العرض فقط؛ تبقى أسماء الأوامر وحقول البروتوكول ومحتويات المحادثة كما هي. يتطلب التحقق البصري من اتصال الحروف العربية واتجاهها جهاز Windows يعمل عليه Tcl/Tk.
+العربية هي لغة الواجهة الافتراضية، مع زر English للتبديل الفوري وحفظ الاختيار. تُحاذى عناصر العربية إلى اليمين ويُعكس ترتيب أزرار الإعداد؛ تبقى الوثائق وأدوات الطرفية ثنائية اللغة. تظهر نسبة التنزيل وإرشادات الخطوة التالية، ويمكن تمرير صفحة الإعداد على الشاشات الصغيرة. تبقى أسماء الأوامر وحقول البروتوكول ومحتويات المحادثة كما هي. يتطلب التحقق البصري من اتصال الحروف العربية واتجاهها ومؤشر الكتابة جهاز Windows يعمل عليه Tcl/Tk؛ المحاذاة وحدها لا تثبت دعم RTL الكامل. اتبع [دليل التجربة](WINDOWS_TRIAL.md).
 
 **ذكاء اصطناعي مدعوم من المجتمع — Community-powered AI** — نسخة ألفا من تطبيق المزود v1.1 على Windows.
 
@@ -75,7 +75,7 @@ py -3 -m compileall -q provider tools tests
 
 ## English
 
-Documentation, UI and operational messages are available in Arabic and English together. Only presentation messages are translated; command names, protocol fields and conversation content remain unchanged. Visual verification of Arabic shaping and direction requires a Windows machine with working Tcl/Tk.
+The UI defaults to Arabic, with an English button for live switching and a saved preference. Arabic controls align right and setup buttons reverse order; documentation and CLI tools remain bilingual. Download percentages and next-step guidance are visible, with a scrollable setup page for smaller screens. Command names, protocol fields and conversation content remain unchanged. Arabic shaping, direction and caret behavior require visual validation on Windows with working Tcl/Tk; alignment alone does not establish full RTL support. Follow the [trial guide](WINDOWS_TRIAL.md).
 
 **Community-powered AI** — Windows Provider App v1.1 alpha.
 

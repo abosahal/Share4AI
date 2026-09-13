@@ -10,6 +10,27 @@ from provider.i18n import TEXT, tr, display_message, BilingualParser
 
 
 class BilingualTests(unittest.TestCase):
+    def test_language_preference_defaults_and_persists_separately(self):
+        import tempfile
+        from provider.preferences import load_language, save_language
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            self.assertEqual(load_language(root), 'ar')
+            (root / 'settings.json').write_text('{"maximum":70}', encoding='utf-8')
+            save_language(root, 'en')
+            self.assertEqual(load_language(root), 'en')
+            self.assertEqual((root / 'settings.json').read_text(), '{"maximum":70}')
+            (root / 'preferences.json').write_text('{broken', encoding='utf-8')
+            self.assertEqual(load_language(root), 'ar')
+            with self.assertRaises(ValueError): save_language(root, 'fr')
+
+    def test_single_language_and_dynamic_diagnostics(self):
+        self.assertEqual(tr('Start Sharing', language='ar'), 'بدء المشاركة')
+        self.assertEqual(tr('Start Sharing', language='en'), 'Start Sharing')
+        self.assertEqual(display_message('Runtime 42%', language='ar'), 'محرك التشغيل 42%')
+        self.assertEqual(display_message('Runtime 42%', language='en'), 'Runtime 42%')
+        self.assertEqual(display_message('Downloading and verifying Qwen', language='en'), 'Downloading and verifying Qwen')
+
     def test_catalog_templates_preserve_values_and_both_languages(self):
         formatter = string.Formatter()
         for source, arabic in TEXT.items():
