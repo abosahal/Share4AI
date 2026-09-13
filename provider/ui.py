@@ -14,7 +14,7 @@ def launch(state_dir=None, on_ready=None):
     def tr(source, **values):
         return translate(source, language=language, **values)
     def display_message(source):
-        return translate_message(source, language=language)
+        return '\n'.join(translate_message(line, language=language) for line in source.split('\n'))
     window = tk.Tk()
     window.title(tr('Share4AI Provider 1.1 — Community-powered AI'))
     window.geometry('1000x760')
@@ -48,6 +48,19 @@ def launch(state_dir=None, on_ready=None):
     status = tk.StringVar(value=tr('Ready to scan'))
     network = tk.StringVar(value=tr('OFFLINE'))
     ttk.Label(setup, textvariable=device, wraplength=810).pack(anchor='w')
+    ttk.Label(setup, text=tr('Sizes in gigabytes')).pack(anchor='w')
+    resource_rows = ttk.Frame(setup)
+    resource_rows.pack(fill='x')
+    numbers = {}
+    number_labels = []
+    for index, key in enumerate(('Installed memory', 'Free memory', 'Free disk space (not required space)',
+                                 'Free memory required by this version', 'Disk space required including reserve')):
+        ttk.Label(resource_rows, text=tr(key)).grid(row=index, column=1, sticky='ew', padx=8)
+        numbers[key] = tk.StringVar(value='—')
+        label = ttk.Label(resource_rows, textvariable=numbers[key], width=12, anchor='w')
+        label.grid(row=index, column=0, sticky='w', padx=8)
+        number_labels.append(label)
+    resource_rows.columnconfigure(1, weight=1)
     ttk.Label(setup, textvariable=recommendation, wraplength=810).pack(anchor='w', pady=10)
     next_step = tk.StringVar(value=tr('Scan, download, start, then test performance.'))
     ttk.Label(setup, textvariable=next_step, wraplength=720, font=('Segoe UI', 11, 'bold')).pack(fill='x', pady=8)
@@ -55,11 +68,21 @@ def launch(state_dir=None, on_ready=None):
     progress.pack(fill='x', pady=4)
     buttons = []
     row = ttk.Frame(setup); row.pack(anchor='w', pady=10)
+    def provision_if_ready():
+        if not app.recommendation or not app.recommendation.model:
+            status.set(tr('Download unavailable until device requirements are met. See the reason above.'))
+            return
+        app.submit(app.provision)
     for label, action in [(tr('1. Scan'), app.scan_device), (tr('2. Download & Verify'), app.provision),
                           (tr('3. Start Local AI'), app.start_local), (tr('4. Benchmark'), app.run_benchmark)]:
         button = ttk.Button(row, text=label, command=lambda a=action: app.submit(a))
         button.grid(row=len(buttons) // 2, column=len(buttons) % 2, padx=3, pady=3, sticky='ew'); buttons.append(button)
-    ttk.Label(setup, text=tr('Downloads: Qwen 4B ≈ 2.7 GB / 9B ≈ 5.7 GB plus runtime.\nModels use published SHA256 checks. Retry restarts an interrupted download.'), wraplength=800).pack(anchor='w')
+    buttons[1].configure(command=provision_if_ready, state='disabled')
+    ttk.Label(setup, text=tr('Download sizes')).pack(anchor='w')
+    sizes_label = ttk.Label(setup, text='Qwen 4B: 2.7 GB\nQwen 9B: 5.7 GB', anchor='w', justify='left')
+    sizes_label.pack(anchor='w')
+    number_labels.append(sizes_label)
+    ttk.Label(setup, text=tr('The app also downloads its runtime and verifies the files automatically.'), wraplength=800).pack(anchor='w')
     ttk.Separator(setup).pack(fill='x', pady=18)
     ttk.Label(setup, text=tr('Sharing connection'), font=('Segoe UI', 13, 'bold')).pack(anchor='w')
     ttk.Label(setup, textvariable=network).pack(anchor='w')
@@ -118,6 +141,11 @@ def launch(state_dir=None, on_ready=None):
     ttk.Label(bottom, textvariable=status, wraplength=650).pack(side='left')
     ttk.Button(bottom, text=tr('Cancel / Stop AI'), command=lambda: threading.Thread(target=app.stop_all, daemon=True).start()).pack(side='right')
     latest = {}
+    working = False
+    def sync_buttons():
+        for b in buttons: b.configure(state='disabled' if working else 'normal')
+        if working or not app.recommendation or not app.recommendation.model:
+            buttons[1].configure(state='disabled')
     def orient():
         rtl = language == 'ar'
         anchor, justify, side = ('e', 'right', 'right') if rtl else ('w', 'left', 'left')
@@ -130,6 +158,12 @@ def launch(state_dir=None, on_ready=None):
                     widget.pack_configure(anchor=anchor)
             for child in widget.winfo_children(): visit(child)
         visit(window)
+        for label in number_labels: label.configure(anchor='w', justify='left')
+        for widget in resource_rows.winfo_children():
+            is_number = widget in number_labels
+            widget.grid_configure(column=(0 if is_number else 1) if rtl else (1 if is_number else 0))
+        resource_rows.columnconfigure(0, weight=0 if rtl else 1)
+        resource_rows.columnconfigure(1, weight=1 if rtl else 0)
         selected = tabs.select()
         ordered = (settings, chat, setup_tab) if rtl else (setup_tab, chat, settings)
         for index, tab in enumerate(ordered): tabs.insert(index, tab)
@@ -178,6 +212,7 @@ def launch(state_dir=None, on_ready=None):
     language_button.pack(before=tabs, anchor='e', padx=18)
     entry.bind('<KeyRelease>', lambda event: entry.tag_add('direction', '1.0', 'end'))
     def render(kind, value):
+        nonlocal working
         if kind in ('status', 'hardware', 'recommendation', 'sharing', 'benchmark'):
             # Keep status and benchmark in arrival order for language switching.
             if kind in ('status', 'benchmark'):
@@ -194,13 +229,21 @@ def launch(state_dir=None, on_ready=None):
             elif value == 'Stopped':
                 next_step.set(tr('Stopped. Start Local AI when you are ready.'))
         elif kind == 'working':
-            for b in buttons: b.configure(state='disabled' if value else 'normal')
+            working = bool(value)
+            sync_buttons()
         elif kind == 'hardware':
             gpu = ', '.join(g.name for g in value.gpus) or tr('No supported NVIDIA GPU')
-            device.set(gpu + '\n' + tr('RAM {ram} GB • Available {available} GB • Free disk {disk} GB', ram=f'{value.ram_mb / 1024:.1f}', available=f'{value.available_ram_mb / 1024:.1f}', disk=f'{value.disk_free_mb / 1024:.1f}'))
+            device.set(gpu)
+            for key, amount in (('Installed memory', value.ram_mb), ('Free memory', value.available_ram_mb),
+                                ('Free disk space (not required space)', value.disk_free_mb)):
+                numbers[key].set(f'{amount / 1024:.1f}')
         elif kind == 'recommendation':
             recommendation.set((value.model['id'] if value.model else tr('No suitable model')) + '\n' + display_message(value.reason))
-            next_step.set(tr('Model selected. Download and verify its files.') if value.model else tr('Free memory or disk space, then scan again.'))
+            for key, amount in (('Free memory required by this version', value.required_free_ram_mb),
+                                ('Disk space required including reserve', value.required_disk_mb)):
+                numbers[key].set(f'{amount / 1024:.1f}' if amount else '—')
+            next_step.set(tr('Model selected. Download and verify its files.') if value.model else tr('Download unavailable until device requirements are met. See the reason above.'))
+            sync_buttons()
         elif kind == 'sharing': network.set(display_message(value))
         elif kind == 'token': append(value)
         elif kind == 'answer': messages.append(dict(role='assistant', content=value)); append('\n')
@@ -227,6 +270,6 @@ def launch(state_dir=None, on_ready=None):
     if on_ready is None:
         app.submit(app.scan_device)
     else:
-        on_ready(window, close)
+        on_ready(window, close, app)
     pump()
     window.mainloop()

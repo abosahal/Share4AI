@@ -6,6 +6,10 @@
 
 ## العربية
 
+### إصلاح تشخيص الموارد 1.1.1
+
+لقطة المستخدم أظهرت ذاكرة إجمالية 7.8 GB، ومتاحة 0.8 GB، وقرصًا حرًا 362.3 GB دون بطاقة مدعومة. كان الفحص يمنع التوصية لكن الزر يبقى متاحًا ورسالة تجمع الذاكرة والقرص. أصبح السبب محددًا، ويظهر المطلوب والموجود في خلايا منفصلة عن العناوين العربية، ويظل التنزيل معطلًا بعد انتهاء الفحص وتبديل اللغة ما لم يوجد نموذج مناسب. يعيد الفحص الناجح تفعيله. نجح 40 اختبارًا؛ فحص الحزمة يحاكي هذا الجهاز ثم جهازًا مؤهلًا. لم تُخفض شروط التشغيل غير المقاسة ولم يُضف نموذج صغير دون تحقق من جودته العربية وموارده.
+
 نُشر المثبت في [الإصدار التجريبي windows-preview-1-1](https://github.com/abosahal/Share4AI/releases/tag/windows-preview-1-1). نجح بناء Windows واختبار التثبيت وإعادته والإزالة والنشر على GitHub Actions في التشغيل 34779054937. القيود المذكورة أدناه ما زالت قائمة.
 
 ### دفعة المثبّت المباشر
@@ -92,6 +96,10 @@ Max GPU Usage حد admission وليس hard cap. لا gaming detection أو تع�
 <a id="en"></a>
 
 ## English
+
+### Resource diagnostics fix 1.1.1
+
+The user's screenshot showed 7.8 GB total RAM, 0.8 GB available, 362.3 GB free disk and no supported GPU. Admission blocked recommendation while the download button remained enabled and the message conflated RAM and disk. Blockers are now specific, with available/required values in separate cells from Arabic labels. Download stays disabled after operation completion and language switching without a suitable model; a successful rescan re-enables it. All 40 tests pass; package checks simulate the reported device followed by an eligible one. Unmeasured runtime thresholds were not relaxed and no smaller model was added without Arabic-quality and resource validation.
 
 The installer is published in [prerelease windows-preview-1-1](https://github.com/abosahal/Share4AI/releases/tag/windows-preview-1-1). Windows build, install/reinstall/uninstall checks and publication passed in GitHub Actions run 34779054937. The limitations below still apply.
 

@@ -90,6 +90,9 @@ class ProviderApp:
             self.runtime = None
         self.result = None
         self.scan_device()
+        if self.recommendation.model is None:
+            self.emit('status', self.recommendation.reason)
+            return
         self.record = install(self.root, self.recommendation, self.cancel, lambda m: self.emit('status', m))
 
     def start_local(self):

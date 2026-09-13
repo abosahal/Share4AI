@@ -34,7 +34,7 @@ def main():
     if process.returncode or not report.is_file() or not json.loads(report.read_text())['ok']:
         raise RuntimeError('Packaged UI smoke test failed; installer not built')
     subprocess.run([str(compiler), str(root / 'packaging' / 'Share4AI.iss')], check=True)
-    installer = root / 'dist' / 'installer' / 'Share4AI-Setup-1.1.0-windows-x64.exe'
+    installer = root / 'dist' / 'installer' / 'Share4AI-Setup-1.1.1-windows-x64.exe'
     digest = hashlib.sha256(installer.read_bytes()).hexdigest()
     installer.with_suffix('.exe.sha256').write_text(digest + '  ' + installer.name + '\n', encoding='ascii')
     print(installer)

@@ -33,7 +33,7 @@ Max GPU Usage (%)|الحد الأعلى لاستخدام معالج الرسوم
 Enter a whole number from 0 to 100|أدخل عددًا صحيحًا من 0 إلى 100
 Save Settings|حفظ الإعدادات
 Cancel / Stop AI|إلغاء / إيقاف الذكاء
-No supported NVIDIA GPU|لا يوجد معالج رسوميات NVIDIA مدعوم
+No supported NVIDIA GPU|لم تُكتشف بطاقة رسوميات مدعومة؛ سيُفحص خيار المعالج المركزي
 No suitable model|لا يوجد نموذج مناسب
 You:|أنت:
 AI:|الذكاء الاصطناعي:
@@ -149,6 +149,18 @@ Share4AI local protocol fixture: http://127.0.0.1:8000 (no jobs, no persistence)
 Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only|تجربة Share4AI المحلية الموثقة على 127.0.0.1:8000؛ مزود موثوق واحد؛ تخزين في الذاكرة فقط'''
 TEXT = dict(line.split('|', 1) for line in _ROWS.splitlines())
 TEXT.update({
+    'This device has less total memory than this version requires. Closing apps alone will not be enough.': 'إجمالي ذاكرة الجهاز أقل مما تتطلبه هذه النسخة. إغلاق البرامج وحده لن يكون كافيًا.',
+    'Not enough free memory. Close other apps and scan again.': 'الذاكرة المتاحة غير كافية. أغلق البرامج الأخرى ثم أعد الفحص.',
+    'Not enough free disk space. Free some space and scan again.': 'مساحة القرص الحرة غير كافية. وفّر مساحة ثم أعد الفحص.',
+    'Download unavailable until device requirements are met. See the reason above.': 'التنزيل غير متاح قبل استيفاء متطلبات الجهاز. السبب موضح أعلاه.',
+    'Installed memory': 'إجمالي ذاكرة الجهاز',
+    'Free memory': 'الذاكرة المتاحة الآن',
+    'Free disk space (not required space)': 'مساحة القرص الحرة وليست المطلوبة',
+    'Free memory required by this version': 'الذاكرة المتاحة المطلوبة لهذه النسخة',
+    'Disk space required including reserve': 'مساحة القرص المطلوبة مع الاحتياطي',
+    'Sizes in gigabytes': 'الأحجام بالغيغابايت',
+    'Download sizes': 'أحجام تنزيل النماذج',
+    'The app also downloads its runtime and verifies the files automatically.': 'ينزّل التطبيق محرك التشغيل أيضًا ويتحقق من الملفات تلقائيًا.',
     'Sharing activation is not available in this trial. You can use Local AI.': 'تفعيل المشاركة غير متاح في هذه التجربة. يمكنك استخدام الذكاء المحلي.',
     'Advanced settings (internal testing)': 'إعدادات متقدمة (للاختبار الداخلي)',
     'Sharing pauses when resource usage or temperature is high. This setting does not impose a hard GPU limit. Public sharing activation is coming later.': 'تُعلّق المشاركة عند ارتفاع استخدام الموارد أو الحرارة. هذا الإعداد لا يفرض سقفًا صارمًا على معالج الرسوميات. تفعيل المشاركة العامة سيُتاح لاحقًا.',

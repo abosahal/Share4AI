@@ -11,6 +11,24 @@ from provider.hardware import Hardware, GPU, parse_nvidia
 
 
 class FoundationTests(unittest.TestCase):
+    def test_screenshot_machine_reports_memory_not_disk(self):
+        hw = Hardware('Windows', 'AMD64', 'test', 4, 7.8 * 1024, 0.8 * 1024, 362.3 * 1024, [])
+        result = recommend(hw)
+        self.assertIsNone(result.model)
+        self.assertEqual(result.blockers, ('total_ram',))
+        self.assertNotIn('disk', result.reason)
+        self.assertEqual(result.required_free_ram_mb, 8192)
+
+    def test_low_free_memory_disk_and_recovery_are_distinct(self):
+        hw = Hardware('Windows', 'AMD64', 'test', 4, 16384, 1024, 50000, [])
+        self.assertEqual(recommend(hw).blockers, ('free_ram',))
+        hw.disk_free_mb = 100
+        self.assertEqual(recommend(hw).blockers, ('free_ram', 'disk'))
+        hw.available_ram_mb = 12000
+        self.assertEqual(recommend(hw).blockers, ('disk',))
+        hw.disk_free_mb = 50000
+        self.assertIsNotNone(recommend(hw).model)
+
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
