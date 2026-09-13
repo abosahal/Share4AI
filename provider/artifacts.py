@@ -92,7 +92,7 @@ def download(artifact, directory: Path, cancel=None, progress=lambda done, total
             except Exception as error:
                 if isinstance(error, ArtifactError):
                     raise
-                raise ArtifactError('Could not reach the download source. Check the internet connection and try again.') from error
+                raise ArtifactError('Runtime connection failed') from error
             with response_cm as response:
                 while True:
                     if cancel.is_set():
