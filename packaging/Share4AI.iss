@@ -1,5 +1,5 @@
 #ifndef AppVersion
-  #define AppVersion "1.1.1"
+  #define AppVersion "1.1.2"
 #endif
 [Setup]
 AppId={{A9FDF7E6-C713-4BDB-9E40-97E82454E0EE}
@@ -40,8 +40,15 @@ english.WelcomeLabel2=Install the app and start using AI on your computer.%n%nNo
 [Files]
 Source: "..\dist\Share4AI\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
+[CustomMessages]
+arabic.DesktopShortcut=إنشاء اختصار على سطح المكتب
+english.DesktopShortcut=Create a desktop shortcut
+
+[Tasks]
+Name: "desktopicon"; Description: "{cm:DesktopShortcut}"
+
 [Icons]
-Name: "{userdesktop}\Share4AI"; Filename: "{app}\Share4AI.exe"
+Name: "{userdesktop}\Share4AI"; Filename: "{app}\Share4AI.exe"; Tasks: desktopicon
 Name: "{userprograms}\Share4AI"; Filename: "{app}\Share4AI.exe"
 
 [Run]
