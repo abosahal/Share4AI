@@ -6,7 +6,7 @@
 
 ## العربية
 
-**[تنزيل مثبت Windows مباشرة](https://github.com/abosahal/Share4AI/releases/download/windows-preview-1-1/Share4AI-Setup-1.1.0-windows-x64.exe)** — نسخة تجريبية، نحو 11 MB. افتح الملف واضغط تثبيت؛ لا تحتاج الطرفية أو Python. المثبت غير موقع رقميًا بعد، وقد يعرض Windows تحذير ناشر غير معروف.
+**[تنزيل مثبت Windows مباشرة](https://github.com/abosahal/Share4AI/releases/download/windows-preview-2-1/Share4AI-Setup-1.1.1-windows-x64.exe)** — نسخة تجريبية، نحو 11 MB. افتح الملف واضغط تثبيت؛ لا تحتاج الطرفية أو Python. المثبت غير موقع رقميًا بعد، وقد يعرض Windows تحذير ناشر غير معروف.
 
 العربية هي لغة الواجهة الافتراضية، مع زر English للتبديل الفوري وحفظ الاختيار. تُحاذى عناصر العربية إلى اليمين ويُعكس ترتيب أزرار الإعداد؛ تبقى الوثائق وأدوات الطرفية ثنائية اللغة. تظهر نسبة التنزيل وإرشادات الخطوة التالية، ويمكن تمرير صفحة الإعداد على الشاشات الصغيرة. تبقى أسماء الأوامر وحقول البروتوكول ومحتويات المحادثة كما هي. يتطلب التحقق البصري من اتصال الحروف العربية واتجاهها ومؤشر الكتابة جهاز Windows يعمل عليه Tcl/Tk؛ المحاذاة وحدها لا تثبت دعم RTL الكامل. اتبع [دليل التجربة](WINDOWS_TRIAL.md).
 
@@ -16,7 +16,7 @@
 
 ### البدء السريع — Windows x64
 
-1. نزّل ملف **Share4AI-Setup-1.1.0-windows-x64.exe** المرفق بالنسخة التجريبية وافتحه ثم اضغط **تثبيت**. يتضمن متطلبات التشغيل؛ لا تحتاج Python أو الطرفية.
+1. نزّل ملف **Share4AI-Setup-1.1.1-windows-x64.exe** المرفق بالنسخة التجريبية وافتحه ثم اضغط **تثبيت**. يتضمن متطلبات التشغيل؛ لا تحتاج Python أو الطرفية.
 2. افتح **Share4AI** من اختصار سطح المكتب أو قائمة ابدأ. واجهة التثبيت والتطبيق تبدأ بالعربية.
 3. اتبع: **فحص الجهاز → التنزيل والتحقق → تشغيل الذكاء المحلي → اختبار الأداء**.
 4. استخدم تبويب **Local AI — الذكاء المحلي**. تنزيل Qwen يبلغ نحو 2.7GB لحجم 4B أو 5.7GB لحجم 9B؛ يختار التطبيق بحسب الذاكرة المتاحة. تضيف حزم تشغيل CUDA نحو 646MB. أغلق التطبيقات الأخرى التي تستهلك ذاكرة كبيرة أولًا.
@@ -77,7 +77,7 @@ py -3 -m compileall -q provider tools tests
 
 ## English
 
-**[Download the Windows installer directly](https://github.com/abosahal/Share4AI/releases/download/windows-preview-1-1/Share4AI-Setup-1.1.0-windows-x64.exe)** — trial build, about 11 MB. Open the file and select Install; no terminal or Python is required. The installer is not digitally signed yet and Windows may display an unknown-publisher warning.
+**[Download the Windows installer directly](https://github.com/abosahal/Share4AI/releases/download/windows-preview-2-1/Share4AI-Setup-1.1.1-windows-x64.exe)** — trial build, about 11 MB. Open the file and select Install; no terminal or Python is required. The installer is not digitally signed yet and Windows may display an unknown-publisher warning.
 
 The UI defaults to Arabic, with an English button for live switching and a saved preference. Arabic controls align right and setup buttons reverse order; documentation and CLI tools remain bilingual. Download percentages and next-step guidance are visible, with a scrollable setup page for smaller screens. Command names, protocol fields and conversation content remain unchanged. Arabic shaping, direction and caret behavior require visual validation on Windows with working Tcl/Tk; alignment alone does not establish full RTL support. Follow the [trial guide](WINDOWS_TRIAL.md).
 
@@ -87,7 +87,7 @@ Project documentation and the start of Sprint 1. The app runs with llama.cpp wit
 
 ### Quick start — Windows x64
 
-1. Download **Share4AI-Setup-1.1.0-windows-x64.exe** attached to the trial build, open it and select **Install**. Runtime requirements are bundled; no Python or terminal is needed.
+1. Download **Share4AI-Setup-1.1.1-windows-x64.exe** attached to the trial build, open it and select **Install**. Runtime requirements are bundled; no Python or terminal is needed.
 2. Open **Share4AI** from the desktop or Start menu shortcut. The installer and app default to Arabic.
 3. **Scan → Download & Verify → Start Local AI → Benchmark**.
 4. Use the **Local AI** tab. Qwen downloads are about 2.7GB (4B) or 5.7GB (9B); the app selects based on available memory. CUDA runtime packages add about 646MB. Close other memory-heavy applications first.
