@@ -6,6 +6,8 @@
 
 ## العربية
 
+**[تنزيل مثبت Windows مباشرة](https://github.com/abosahal/Share4AI/releases/download/windows-preview-1-1/Share4AI-Setup-1.1.0-windows-x64.exe)** — نسخة تجريبية، نحو 11 MB. افتح الملف واضغط تثبيت؛ لا تحتاج الطرفية أو Python. المثبت غير موقع رقميًا بعد، وقد يعرض Windows تحذير ناشر غير معروف.
+
 العربية هي لغة الواجهة الافتراضية، مع زر English للتبديل الفوري وحفظ الاختيار. تُحاذى عناصر العربية إلى اليمين ويُعكس ترتيب أزرار الإعداد؛ تبقى الوثائق وأدوات الطرفية ثنائية اللغة. تظهر نسبة التنزيل وإرشادات الخطوة التالية، ويمكن تمرير صفحة الإعداد على الشاشات الصغيرة. تبقى أسماء الأوامر وحقول البروتوكول ومحتويات المحادثة كما هي. يتطلب التحقق البصري من اتصال الحروف العربية واتجاهها ومؤشر الكتابة جهاز Windows يعمل عليه Tcl/Tk؛ المحاذاة وحدها لا تثبت دعم RTL الكامل. اتبع [دليل التجربة](WINDOWS_TRIAL.md).
 
 **ذكاء اصطناعي مدعوم من المجتمع — Community-powered AI** — نسخة ألفا من تطبيق المزود v1.1 على Windows.
@@ -74,6 +76,8 @@ py -3 -m compileall -q provider tools tests
 <a id="en"></a>
 
 ## English
+
+**[Download the Windows installer directly](https://github.com/abosahal/Share4AI/releases/download/windows-preview-1-1/Share4AI-Setup-1.1.0-windows-x64.exe)** — trial build, about 11 MB. Open the file and select Install; no terminal or Python is required. The installer is not digitally signed yet and Windows may display an unknown-publisher warning.
 
 The UI defaults to Arabic, with an English button for live switching and a saved preference. Arabic controls align right and setup buttons reverse order; documentation and CLI tools remain bilingual. Download percentages and next-step guidance are visible, with a scrollable setup page for smaller screens. Command names, protocol fields and conversation content remain unchanged. Arabic shaping, direction and caret behavior require visual validation on Windows with working Tcl/Tk; alignment alone does not establish full RTL support. Follow the [trial guide](WINDOWS_TRIAL.md).
 

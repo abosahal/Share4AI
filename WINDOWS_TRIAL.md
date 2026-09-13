@@ -6,6 +6,8 @@
 
 ## العربية
 
+**[تنزيل ملف التثبيت](https://github.com/abosahal/Share4AI/releases/download/windows-preview-1-1/Share4AI-Setup-1.1.0-windows-x64.exe)**
+
 نزّل **Share4AI-Setup-1.1.0-windows-x64.exe** وافتحه ثم اضغط **تثبيت**. افتح Share4AI من الاختصار بعد الانتهاء. لا تحتاج Python أو الطرفية أو فك ضغط ملفات. لا تبدأ بتنزيل نموذج إذا لم يوصِ التطبيق بنموذج مناسب لجهازك. المثبت التجريبي غير موقع رقميًا، وقد يظهر تحذير ناشر غير معروف؛ لا تعطّل حماية Windows.
 
 1. تأكد أن الواجهة تبدأ بالعربية، وأن النصوص والأزرار كاملة عند حجم نافذة صغير. مرّر صفحة الإعداد عند الحاجة.
@@ -22,6 +24,8 @@
 <a id="en"></a>
 
 ## English
+
+**[Download the installer](https://github.com/abosahal/Share4AI/releases/download/windows-preview-1-1/Share4AI-Setup-1.1.0-windows-x64.exe)**
 
 Download **Share4AI-Setup-1.1.0-windows-x64.exe**, open it and select **Install**, then open Share4AI from its shortcut. No Python, terminal or archive extraction is required. Do not download a model unless the app recommends one for your device. The trial installer is unsigned and Windows may show an unknown-publisher warning; do not disable Windows protection.
 

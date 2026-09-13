@@ -6,6 +6,8 @@
 
 ## العربية
 
+نُشر المثبت في [الإصدار التجريبي windows-preview-1-1](https://github.com/abosahal/Share4AI/releases/tag/windows-preview-1-1). نجح بناء Windows واختبار التثبيت وإعادته والإزالة والنشر على GitHub Actions في التشغيل 34779054937. القيود المذكورة أدناه ما زالت قائمة.
+
 ### دفعة المثبّت المباشر
 
 أُنتج Share4AI-Setup-1.1.0-windows-x64.exe باستخدام PyInstaller وInno Setup، مع Python وTcl/Tk والكتالوج، ودون نافذة طرفية. التثبيت بالعربية وللمستخدم الحالي، مع اختصارات وإزالة من إعدادات Windows. نجح 38 اختبارًا واختبار الواجهة المجمّعة وتبديل اللغة، ثم التثبيت وإعادة التثبيت والإزالة وتشغيل النسخة المثبتة بعد إزالة Python من PATH ومتغيرات Tcl/Python من بيئة عملية الاختبار. تبين أن عطل Tcl السابق مرتبط بالبيئة المقيدة؛ نجح خارجها. لا يمثل هذا اختبار جهاز نظيف دون Python أو تحققًا بصريًا كاملًا من العربية. المثبت التجريبي غير موقع، وتشغيل النموذج الفعلي على GPU والتسجيل المبسط بخدمة مشاركة عامة ما زالا غير مكتملين. أنشئ مسار آلي لبناء المثبت ونشر إصدار تجريبي؛ يُتحقق من نجاح تشغيله على GitHub قبل إعطاء رابط إصدار.
@@ -90,6 +92,8 @@ Max GPU Usage حد admission وليس hard cap. لا gaming detection أو تع�
 <a id="en"></a>
 
 ## English
+
+The installer is published in [prerelease windows-preview-1-1](https://github.com/abosahal/Share4AI/releases/tag/windows-preview-1-1). Windows build, install/reinstall/uninstall checks and publication passed in GitHub Actions run 34779054937. The limitations below still apply.
 
 ### Direct installer increment
 
