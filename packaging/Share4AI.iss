@@ -31,3 +31,25 @@ SetupLogging=yes
 [Languages]
 Name: "arabic"; MessagesFile: "compiler:Languages\\Arabic.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
+
+[Messages]
+arabic.WelcomeLabel1=مرحبًا بك في Share4AI
+arabic.WelcomeLabel2=ثبّت التطبيق وابدأ استخدام الذكاء الاصطناعي من جهازك.%n%nلا تحتاج إلى أدوات إضافية أو كتابة أوامر. سيختار التطبيق النموذج المناسب وينزله بعد موافقتك.%n%nهذه نسخة تجريبية للاختبار.
+english.WelcomeLabel2=Install the app and start using AI on your computer.%n%nNo additional tools or commands are needed. The app selects a suitable model and downloads it after your confirmation.%n%nThis is a trial build.
+
+[Files]
+Source: "..\\dist\\Share4AI\\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+[CustomMessages]
+arabic.DesktopShortcut=إنشاء اختصار على سطح المكتب
+english.DesktopShortcut=Create a desktop shortcut
+
+[Tasks]
+Name: "desktopicon"; Description: "{cm:DesktopShortcut}"
+
+[Icons]
+Name: "{userdesktop}\\Share4AI"; Filename: "{app}\\Share4AI.exe"; Tasks: desktopicon
+Name: "{userprograms}\\Share4AI"; Filename: "{app}\\Share4AI.exe"
+
+[Run]
+Filename: "{app}\\Share4AI.exe"; Description: "{cm:LaunchProgram,Share4AI}"; Flags: nowait postinstall skipifsilent
