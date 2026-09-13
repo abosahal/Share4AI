@@ -14,8 +14,7 @@ import urllib.request
 import zipfile
 
 ORIGINS = {'github.com', 'huggingface.co'}
-REDIRECTS = ORIGINS | {'release-assets.githubusercontent.com', 'cdn-lfs.huggingface.co',
-                        'cdn-lfs-us-1.hf.co', 'cas-bridge.xethub.hf.co'}
+REDIRECT_SUFFIXES = ('.github.com', '.githubusercontent.com', '.huggingface.co', '.hf.co')
 
 
 class ArtifactError(RuntimeError):
@@ -26,9 +25,18 @@ class Cancelled(ArtifactError):
     pass
 
 
+def trusted_host(hostname, redirect=False):
+    host = (hostname or '').lower().rstrip('.')
+    if host in ORIGINS:
+        return True
+    if not redirect:
+        return False
+    return any(host == suffix[1:] or host.endswith(suffix) for suffix in REDIRECT_SUFFIXES)
+
+
 def validate_url(url, redirect=False):
     p = urllib.parse.urlsplit(url)
-    if p.scheme != 'https' or p.hostname not in (REDIRECTS if redirect else ORIGINS) or p.username or p.password or p.port not in (None, 443):
+    if p.scheme != 'https' or not trusted_host(p.hostname, redirect) or p.username or p.password or p.port not in (None, 443):
         raise ArtifactError('Untrusted artifact URL')
 
 
@@ -48,7 +56,6 @@ def verify_signature(path, signature):
         return 'not-published'
     if signature.get('type') != 'authenticode' or os.name != 'nt':
         raise ArtifactError('Unsupported required signature')
-    # Path goes through an environment variable, never through interpolated shell code.
     env = dict(os.environ, SHARE4AI_VERIFY_PATH=str(Path(path).resolve()))
     command = '$s=Get-AuthenticodeSignature -LiteralPath $env:SHARE4AI_VERIFY_PATH; @{status=[string]$s.Status; thumbprint=$s.SignerCertificate.Thumbprint} | ConvertTo-Json -Compress'
     out = subprocess.run(['powershell.exe', '-NoProfile', '-NonInteractive', '-Command', command],
@@ -73,7 +80,6 @@ def download(artifact, directory: Path, cancel=None, progress=lambda done, total
         return destination
     if shutil.disk_usage(directory).free < artifact['size'] + 256 * 2**20:
         raise ArtifactError('Insufficient disk space')
-    # Each attempt has a private partial file. Retry restarts safely; no unsafe Range append.
     fd, temp = tempfile.mkstemp(suffix='.part', dir=directory)
     partial = Path(temp)
     try:
@@ -81,7 +87,13 @@ def download(artifact, directory: Path, cancel=None, progress=lambda done, total
         request = urllib.request.Request(artifact['url'], headers={'User-Agent': 'Share4AI/1.1'})
         open_url = opener or urllib.request.build_opener(SafeRedirect()).open
         with os.fdopen(fd, 'wb') as target:
-            with open_url(request, timeout=30) as response:
+            try:
+                response_cm = open_url(request, timeout=120)
+            except Exception as error:
+                if isinstance(error, ArtifactError):
+                    raise
+                raise ArtifactError('Could not reach the download source. Check the internet connection and try again.') from error
+            with response_cm as response:
                 while True:
                     if cancel.is_set():
                         raise Cancelled('Download cancelled; retry is safe')
@@ -143,7 +155,6 @@ def extract_archives(archives, destination: Path, max_bytes=3 * 2**30):
         executables = list(destination.rglob('llama-server.exe'))
         if len(executables) != 1:
             raise ArtifactError('Expected one llama-server.exe')
-        # Dependencies ship separately; keep DLLs beside the executable if needed.
         binary = executables[0]
         for dll in list(destination.rglob('*.dll')):
             if dll.parent != binary.parent:
