@@ -45,20 +45,20 @@ def _opener():
 def _public_https(url):
     parsed = urllib.parse.urlparse(url)
     if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password:
-        raise WebError('Only public HTTPS URLs are allowed')
+        raise WebError('Untrusted artifact URL')
     if parsed.port not in (None, 443):
-        raise WebError('Only public HTTPS URLs are allowed')
+        raise WebError('Untrusted artifact URL')
     host = parsed.hostname
     if host.lower() in ('localhost', 'localhost.localdomain'):
-        raise WebError('Private addresses are blocked')
+        raise WebError('Untrusted artifact URL')
     try:
         infos = socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
     except OSError as error:
-        raise WebError('Could not resolve host') from error
+        raise WebError('Control Plane unavailable') from error
     for info in infos:
         ip = ipaddress.ip_address(info[4][0])
         if not ip.is_global:
-            raise WebError('Private addresses are blocked')
+            raise WebError('Untrusted artifact URL')
     return parsed.geturl()
 
 
@@ -69,9 +69,9 @@ def _get(url, accept='application/json'):
         with _opener().open(req, timeout=TIMEOUT) as response:
             data = response.read(MAX_BODY + 1)
     except (urllib.error.URLError, TimeoutError, OSError) as error:
-        raise WebError('Web source unavailable') from error
+        raise WebError('Control Plane unavailable') from error
     if len(data) > MAX_BODY:
-        raise WebError('Web page too large')
+        raise WebError('Control Plane response too large')
     return data
 
 
@@ -118,8 +118,7 @@ def fetch_page(url, opener=None):
     raw = _get(url, accept='text/html,application/xhtml+xml') if opener is None else opener(url)
     parser = _TextExtractor()
     parser.feed(raw.decode('utf-8', errors='replace'))
-    text = ' '.join(parser.parts)
-    return text[:2500]
+    return ' '.join(parser.parts)[:2500]
 
 
 def context_for_messages(messages, search=search_web, fetch=fetch_page):

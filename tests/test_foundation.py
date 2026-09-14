@@ -17,14 +17,14 @@ class FoundationTests(unittest.TestCase):
         self.assertIsNone(result.model)
         self.assertEqual(result.blockers, ('total_ram',))
         self.assertNotIn('disk', result.reason)
-        self.assertEqual(result.required_free_ram_mb, 8192)
+        self.assertEqual(result.required_free_ram_mb, 20480)
 
     def test_low_free_memory_disk_and_recovery_are_distinct(self):
-        hw = Hardware('Windows', 'AMD64', 'test', 4, 16384, 1024, 50000, [])
+        hw = Hardware('Windows', 'AMD64', 'test', 4, 32768, 1024, 50000, [])
         self.assertEqual(recommend(hw).blockers, ('free_ram',))
         hw.disk_free_mb = 100
         self.assertEqual(recommend(hw).blockers, ('free_ram', 'disk'))
-        hw.available_ram_mb = 12000
+        hw.available_ram_mb = 22000
         self.assertEqual(recommend(hw).blockers, ('disk',))
         hw.disk_free_mb = 50000
         self.assertIsNotNone(recommend(hw).model)
@@ -100,8 +100,10 @@ class FoundationTests(unittest.TestCase):
                       [GPU(0, 'busy', 24000, 200, 90, 70), GPU(1, 'free', 12000, 10000, 0, 40)])
         r = recommend(hw)
         self.assertEqual(r.gpu_index, 1)
-        self.assertIn('9b', r.model['id'])
+        self.assertIn('27b', r.model['id'])
+        self.assertEqual(r.ngl, 28)
         hw.gpus = []
+        hw.available_ram_mb = 22000
         self.assertEqual(recommend(hw).runtime_key, 'windows-cpu')
         hw.available_ram_mb = 100
         self.assertIsNone(recommend(hw).model)
