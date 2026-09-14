@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "runtime_version": "b10868",
+  "runtimes": {
+    "windows-cpu": [
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10868/llama-b10868-bin-win-cpu-x64.zip",
+        "size": 18426545,
+        "sha256": "91806de68216cae6f82b4237661cd0e217682d5cb75c18280d591a030d46ab50",
+        "signature": null,
+        "digest_source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10868"
+      }
+    ],
+    "windows-cuda": [
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10868/llama-b10868-bin-win-cuda-12.4-x64.zip",
+        "size": 254079122,
+        "sha256": "841941490b3461328c44eb110f26adf1b1d8ee101b0eae16db7be6d78c4ff88f",
+        "signature": null,
+        "digest_source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10868"
+      },
+      {
+        "url": "https://github.com/ggml-org/llama.cpp/releases/download/b10868/cudart-llama-bin-win-cuda-12.4-x64.zip",
+        "size": 391443627,
+        "sha256": "8c79a9b226de4b3cacfd1f83d24f962d0773be79f1e7b75c6af4ded7e32ae1d6",
+        "signature": null,
+        "digest_source": "https://github.com/ggml-org/llama.cpp/releases/tag/b10868"
+      }
+    ]
+  },
+  "models": [
+    {
+      "id": "qwen3.8-27b-q4_k_m",
+      "family": "Qwen3.8",
+      "revision": "4ca720788d1e01f1bff70c033e0d0028fd02e502",
+      "quantization": "UD-Q4_K_M",
+      "required_vram_mb": 16384,
+      "required_ram_mb": 18432,
+      "allow_ram_offload": true,
+      "offload_gpu_layers": 28,
+      "context": 4096,
+      "source": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF",
+      "license": "Apache-2.0 (upstream Qwen; retain notices)",
+      "artifact": {
+        "url": "https://huggingface.co/unsloth/Qwen3.8-27B-GGUF/resolve/4ca720788d1e01f1bff70c033e0d0028fd02e502/Qwen3.8-27B-UD-Q4_K_M.gguf",
+        "size": 16464440224,
+        "sha256": "322e194ff79741c7baa497c240f677f54b201b0efab44ca8e50f122b39123482",
+        "signature": null,
+        "digest_source": "https://huggingface.co/api/models/unsloth/Qwen3.8-27B-GGUF/revision/4ca720788d1e01f1bff70c033e0d0028fd02e502?blobs=true"
+      }
+    }
+  ]
+}
