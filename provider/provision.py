@@ -44,7 +44,8 @@ def install(root, recommendation, cancel=None, progress=lambda message: None, ca
     inventory = {str(p.relative_to(root)): sha256(p) for p in executable.parent.rglob('*') if p.is_file()}
     record = dict(model=model, model_path=str(model_path.relative_to(root)),
                   executable=str(executable.relative_to(root)), runtime_version=catalog['runtime_version'],
-                  runtime_key=recommendation.runtime_key, gpu_index=recommendation.gpu_index, inventory=inventory)
+                  runtime_key=recommendation.runtime_key, gpu_index=recommendation.gpu_index,
+                  ngl=recommendation.ngl, inventory=inventory)
     atomic_json(root / 'installed.json', record)
     progress('Installed and SHA256 verified')
     return record
