@@ -8,8 +8,6 @@ import tempfile
 
 
 def main():
-    # Import native modules before restoring the DLL search path for external
-    # NVIDIA tools and llama.cpp; see PyInstaller's subprocess guidance.
     from provider.ui import launch
     from provider.catalog import load_catalog
     if getattr(sys, 'frozen', False) and os.name == 'nt':
@@ -45,11 +43,10 @@ def main():
                                         and w.cget('text') == tr('2. Download & Verify', language='ar'))
                         assert download.instate(['disabled'])
                         assert app.recommendation.blockers == ('total_ram',)
-                        # Language toggling must not re-enable a blocked download.
                         switch.invoke(); switch.invoke()
                         assert download.instate(['disabled'])
-                        hardware.available_ram_mb = 10 * 1024
-                        hardware.ram_mb = 16 * 1024
+                        hardware.available_ram_mb = 22 * 1024
+                        hardware.ram_mb = 32 * 1024
                         app.recommendation = recommend(hardware)
                         app.emit('hardware', hardware)
                         app.emit('recommendation', app.recommendation)
@@ -78,7 +75,6 @@ if __name__ == '__main__':
     except Exception:
         if '--smoke-test' in sys.argv:
             raise
-        # Never expose paths, customer content or credentials in startup errors.
         ctypes.windll.user32.MessageBoxW(None,
             'تعذر فتح Share4AI. أعد تشغيل التطبيق أو أعد تثبيته من ملف التنزيل.\n'
             'Share4AI could not start. Restart the app or reinstall it from the download.',
