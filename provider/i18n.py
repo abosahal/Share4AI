@@ -7,6 +7,10 @@ import sys
 _ROWS = '''Share4AI Provider 1.1 — Community-powered AI|Share4AI Provider 1.1 — ذكاء اصطناعي يدعمه المجتمع
 Share4AI  /  Community-powered AI|Share4AI / ذكاء اصطناعي يدعمه المجتمع
 Windows pilot • Local AI first • Authenticated outbound sharing|تجربة Windows • أولوية للذكاء المحلي • مشاركة صادرة موثقة
+Try customer chat on this computer|تجربة محادثة المستخدم على هذا الجهاز
+Chat trial opened on this computer. Keep the app open.|فُتحت تجربة المحادثة على هذا الجهاز. أبقِ التطبيق مفتوحًا.
+Could not open browser. Set a default browser and retry.|تعذر فتح المتصفح. اختر متصفحًا افتراضيًا في إعدادات Windows ثم أعد المحاولة.
+Invalid GPU layer count|إعداد ذاكرة كرت الشاشة غير صالح. أعد إعداد النموذج من التطبيق.
 Device & Setup|الجهاز والإعداد
 Local AI|الذكاء الاصطناعي المحلي
 Settings|الإعدادات

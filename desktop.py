@@ -58,7 +58,21 @@ def main():
                 def verify_ready(download):
                     try:
                         assert not download.instate(['disabled'])
+                        # Exercise assets from the frozen application, not a source checkout.
+                        from tools.pilot_control_plane import make_server
+                        import threading
+                        import urllib.request
+                        server = make_server('smoke-provider', 'smoke-client', 0)
+                        threading.Thread(target=server.serve_forever, daemon=True).start()
+                        try:
+                            opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
+                            with opener.open('http://127.0.0.1:' + str(server.server_port) + '/', timeout=3) as response:
+                                assert b'chat.js' in response.read()
+                        finally:
+                            server.shutdown()
+                            server.server_close()
                         report.write_text(json.dumps({'ok': True, 'catalog': True,
+                            'browser_assets': True,
                             'tk': window.tk.eval('info patchlevel'), 'language_switch': True,
                             'low_memory_download_blocked': True, 'rescan_download_enabled': True}), encoding='utf-8')
                     finally:

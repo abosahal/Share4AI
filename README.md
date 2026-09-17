@@ -1,5 +1,9 @@
 # Share4AI — دليل المشروع | Project guide
 
+**تحديث 1.1.4:** [دليل تجربة محادثة المستخدم دون أوامر](MVP_TRIAL.md). الاستضافة مؤجلة؛ جرّب مسار العميل والمزود على جهاز واحد أولًا. تعليمات الإصدارات السابقة أدناه لا تصف الكتالوج الحالي كاملًا.
+
+**1.1.4 update:** [Customer chat trial without commands](MVP_TRIAL.md). Hosting is deferred; test the client/provider path on one computer first. Earlier version instructions below do not fully describe the current catalog.
+
 [العربية](#ar) | [English](#en)
 
 <a id="ar"></a>

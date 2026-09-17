@@ -25,7 +25,7 @@ class StreamEvent:
 
 class RuntimeAdapter(ABC):
     @abstractmethod
-    def start(self, model: Path, gpu_index=None, context=4096, cancel=None): ...
+    def start(self, model: Path, gpu_index=None, context=4096, cancel=None, gpu_layers=None): ...
     @abstractmethod
     def health(self): ...
     @abstractmethod
@@ -75,12 +75,15 @@ class LlamaCppAdapter(RuntimeAdapter):
         self._inference = threading.Lock()
         self._opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
 
-    def start(self, model, gpu_index=None, context=4096, cancel=None):
+    def start(self, model, gpu_index=None, context=4096, cancel=None, gpu_layers=None):
         cancel = cancel or threading.Event()
         if cancel.is_set():
             raise RuntimeFailure('Runtime start cancelled')
         if not 512 <= context <= 8192:
             raise RuntimeFailure('Invalid context size')
+        if gpu_layers is not None and (type(gpu_layers) is not int or not 0 <= gpu_layers <= 999):
+            raise RuntimeFailure('Invalid GPU layer count')
+        layers = 0 if gpu_index is None else (99 if gpu_layers is None else gpu_layers)
         with self._lock:
             if self.process is not None:
                 raise RuntimeFailure('Runtime already started; stop before changing model')
@@ -97,7 +100,7 @@ class LlamaCppAdapter(RuntimeAdapter):
             if gpu_index is not None:
                 env['CUDA_VISIBLE_DEVICES'] = str(int(gpu_index))
             args = [str(self.executable), '-m', str(Path(model).resolve()), '--host', '127.0.0.1',
-                    '--port', str(port), '-c', str(context), '-ngl', '99' if gpu_index is not None else '0',
+                    '--port', str(port), '-c', str(context), '-ngl', str(layers),
                     '--parallel', '1', '--log-disable', '--no-webui', '--no-slots', '--offline',
                     '--chat-template-kwargs', '{"enable_thinking":false}', '--timeout', '60']
             self.process = subprocess.Popen(args, cwd=self.executable.parent, env=env,

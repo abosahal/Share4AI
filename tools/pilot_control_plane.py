@@ -8,6 +8,7 @@ import threading
 import time
 import uuid
 from provider.jobs import sign_job, validate_messages, JobError
+from provider.client_web import ASSETS
 
 
 class Broker:
@@ -150,11 +151,44 @@ def make_server(provider_token, client_token, port=8000):
             self.send_response(status)
             self.send_header('Content-Type', 'application/json')
             self.send_header('Content-Length', str(len(data)))
+            self.send_header('Cache-Control', 'no-store')
+            self.end_headers()
+            self.wfile.write(data)
+
+        def valid_origin(self):
+            authority = '127.0.0.1:' + str(self.server.server_port)
+            return (self.headers.get('Host') == authority and
+                    self.headers.get('Origin', 'http://' + authority) == 'http://' + authority)
+
+        def do_GET(self):
+            if not self.valid_origin():
+                self.send(403, {'error': 'invalid_origin'}); return
+            if self.path == '/v1/client/status':
+                if not hmac.compare_digest(self.headers.get('Authorization', ''), 'Bearer ' + client_token):
+                    self.send(401, {'error': 'unauthorized'}); return
+                with broker.condition:
+                    broker.expire()
+                    ready = broker.eligible() and not any(not j['terminal'] for j in broker.jobs.values())
+                self.send(200, {'ready': ready}); return
+            asset = ASSETS.get(self.path)
+            if asset is None:
+                self.send(404, {'error': 'not_found'}); return
+            content_type, content = asset
+            data = content.encode('utf-8')
+            self.send_response(200)
+            self.send_header('Content-Type', content_type)
+            self.send_header('Content-Length', str(len(data)))
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('X-Content-Type-Options', 'nosniff')
+            self.send_header('Referrer-Policy', 'no-referrer')
+            self.send_header('Content-Security-Policy', "default-src 'none'; script-src 'self'; style-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'")
             self.end_headers()
             self.wfile.write(data)
 
         def do_POST(self):
             self.connection.settimeout(5)
+            if not self.valid_origin():
+                self.send(403, {'error': 'invalid_origin'}); return
             is_chat = self.path == '/v1/chat/stream'
             expected = client_token if is_chat else provider_token
             try:
@@ -171,7 +205,11 @@ def make_server(provider_token, client_token, port=8000):
                 self.send(400, {'error': 'invalid_request'}); return
             if is_chat:
                 try:
-                    identity = broker.submit(payload.get('messages'), payload.get('max_tokens', 256), payload.get('model_sha256'))
+                    with broker.condition:
+                        model = payload.get('model_sha256')
+                        if model is None and broker.node:
+                            model = broker.node.get('capabilities', {}).get('model_sha256')
+                        identity = broker.submit(payload.get('messages'), payload.get('max_tokens', 256), model)
                 except JobError:
                     self.send(409, {'error': 'invalid_request_or_provider_unavailable'}); return
                 try:

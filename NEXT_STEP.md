@@ -1,5 +1,9 @@
 # الخطوة التالية: تثبيت تجربة الجهاز الآخر | Next step: stabilize the second-device experience
 
+> تحديث بتوجيه المستخدم: مشكلة التنزيل والواجهة محلولة بواسطة جروك؛ الأولوية أصبحت الوصول إلى MVP. نُفذت واجهة محادثة المستخدم وتجربة المشاركة من زر واحد في 1.1.4، والاستضافة مؤجلة باختيار المستخدم. راجع [MVP_TRIAL.md](MVP_TRIAL.md) للمسار الحالي. القائمة أدناه سجل مراجعة سابق وليست ترتيب العمل الحالي.
+>
+> User-directed update: download/UI issues were resolved by Grok; the priority is MVP delivery. Version 1.1.4 implements browser customer chat and a one-click sharing trial. Hosting is deferred by user choice. See [MVP_TRIAL.md](MVP_TRIAL.md) for current delivery/next steps. The following list is prior review history, not the current execution order.
+
 Baseline reviewed: `0af3fcc5535460977198d98ba9fc9dcd523686cc` (2026-09-17).
 Status: prepared; implementation and device acceptance pending.
 الحالة: جاهزة للتنفيذ؛ الإصلاح واختبار الجهاز الآخر لم يكتملَا بعد.

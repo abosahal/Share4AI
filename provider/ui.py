@@ -135,13 +135,17 @@ def launch(state_dir=None, on_ready=None):
     share = ttk.Frame(setup)
     share.pack(anchor='w', pady=8)
     def start_share():
-        if not os.environ.get('SHARE4AI_PROVIDER_TOKEN'):
+        if not app.trial_client and not os.environ.get('SHARE4AI_PROVIDER_TOKEN'):
             status.set(tr('Sharing activation is not available in this trial. You can use Local AI.'))
             return
         app.submit(app.start_sharing)
     button = ttk.Button(share, text=tr('Start Sharing'), command=start_share)
     button.pack(side='left', padx=3)
     buttons.append(button)
+    trial_button = ttk.Button(share, text=tr('Try customer chat on this computer'),
+                             command=lambda: app.submit(app.start_browser_trial))
+    trial_button.pack(side='left', padx=3)
+    buttons.append(trial_button)
     ttk.Button(share, text=tr('Stop Sharing'),
                command=lambda: threading.Thread(target=app.stop_sharing, daemon=True).start()).pack(side='left', padx=3)
 

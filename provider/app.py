@@ -5,6 +5,8 @@ from pathlib import Path
 import queue
 import threading
 import uuid
+import secrets
+import webbrowser
 from .hardware import scan
 from .catalog import recommend
 from .provision import install, atomic_json, verify_install
@@ -25,6 +27,9 @@ class ProviderApp:
         self.runtime = None
         self.sharing = None
         self.jobs = None
+        self.trial_server = None
+        self.trial_client = None
+        self.trial_url = None
         self._inference_slot = threading.Lock()
         self._sharing_lock = threading.RLock()
         self.hardware = None
@@ -112,7 +117,8 @@ class ProviderApp:
             raise RuntimeFailure('Start cancelled')
         self.runtime = LlamaCppAdapter(binary)
         self.emit('status', 'Starting local model')
-        self.runtime.start(model, self.record['gpu_index'], self.record['model']['context'], self.cancel)
+        self.runtime.start(model, self.record['gpu_index'], self.record['model']['context'], self.cancel,
+                           gpu_layers=self.record.get('ngl'))
         self.emit('status', 'Local AI ready — benchmark required for sharing')
 
     def run_benchmark(self):
@@ -168,7 +174,7 @@ class ProviderApp:
                 return
             if not self.runtime or not self.runtime.health() or not self.result or not self.result.passed:
                 raise JobError('Start Local AI and pass benchmark before sharing')
-            client = ControlClient(self.settings['control_plane'], os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))
+            client = self.trial_client or ControlClient(self.settings['control_plane'], os.environ.get('SHARE4AI_PROVIDER_TOKEN', ''))
             self.sharing = SharingSession(client, self.node_id, self.snapshot, lambda s: self.emit('sharing', s))
             self.jobs = JobWorker(client, self.node_id, self.runtime,
                 lambda: self.sharing.enabled and self.sharing.connected and self.snapshot()['state'] == 'AVAILABLE',
@@ -176,6 +182,36 @@ class ProviderApp:
             self.sharing.start()
             self.jobs.start()
             self.emit('status', 'Sharing started; jobs run only while device is eligible')
+
+    def start_browser_trial(self):
+        """One-device customer/provider rehearsal; credentials live only in memory."""
+        from tools.pilot_control_plane import make_server
+        with self._sharing_lock:
+            if self.cancel.is_set() or self.closed:
+                return
+            if not self.runtime or not self.runtime.health() or not self.result or not self.result.passed:
+                raise JobError('Start Local AI and pass benchmark before sharing')
+            if self.trial_server is None:
+                self.stop_sharing()
+                provider_token, client_token = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
+                self.trial_server = make_server(provider_token, client_token, port=0)
+                address = 'http://127.0.0.1:' + str(self.trial_server.server_port)
+                self.trial_client = ControlClient(address, provider_token)
+                self.trial_url = address + '/#access=' + client_token
+                threading.Thread(target=self.trial_server.serve_forever, daemon=True).start()
+            self.start_sharing()
+            if not webbrowser.open(self.trial_url):
+                self.emit('status', 'Could not open browser. Set a default browser and retry.')
+            else:
+                self.emit('status', 'Chat trial opened on this computer. Keep the app open.')
+
+    def stop_browser_trial(self):
+        with self._sharing_lock:
+            if self.trial_server is not None:
+                self.stop_sharing()
+                self.trial_server.shutdown()
+                self.trial_server.server_close()
+                self.trial_server = self.trial_client = self.trial_url = None
 
     def stop_sharing(self):
         with self._sharing_lock:
@@ -191,6 +227,7 @@ class ProviderApp:
         if not 0 <= maximum <= 100:
             raise ValueError('Invalid maximum')
         self.stop_sharing()
+        self.stop_browser_trial()
         self.settings = dict(control_plane=address, maximum=maximum)
         atomic_json(self.root / 'settings.json', self.settings)
         self.emit('status', 'Settings saved; sharing stopped')
@@ -205,6 +242,7 @@ class ProviderApp:
             self.runtime.stop()
         self.result = None
         self.stop_sharing()
+        self.stop_browser_trial()
         self.emit('status', 'Stopped')
 
     def close(self):
