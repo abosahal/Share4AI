@@ -1,11 +1,11 @@
-# Share4AI 1.1.4
+# Share4AI 1.1.5
 
 ## العربية
-زر «تجربة محادثة المستخدم على هذا الجهاز» يفتح واجهة عربية في المتصفح، بعد تشغيل الذكاء المحلي ونجاح اختبار الأداء. تدعم الرد التدريجي والإيقاف ومحادثة جديدة والتبديل للإنجليزية. لا أوامر أو مفاتيح ينسخها المستخدم. أُصلح تمرير إعداد توزيع طبقات النموذج إلى المحرك، وخيار سطح المكتب باقٍ.
+واجهة المزود تعرض تقرير الجهاز أولاً: البطاقة، الذاكرة المتاحة، الحرارة، والاستخدام، مع حكم جاهزية واضح وخطوات عمودية. زر نسخ التقرير يساعد على مطابقة الجهاز. «تجربة محادثة المستخدم» تبقى بعد تشغيل الذكاء المحلي ونجاح الاختبار. أُعيد ملف الترجمة الكامل بعد أن انكسر في بناء سابق.
 
-نزّل Share4AI-Setup-1.1.4-windows-x64.exe وافتحه ثم اضغط تثبيت. هذه تجربة على جهاز واحد؛ الاستضافة وربط جهازين هما الخطوة التالية. المثبت غير موقع رقميًا. الاختبارات الآلية تستخدم نموذجًا محاكى؛ الأداء الفعلي يحتاج تجربة جهاز المزود. راجع MVP_TRIAL.md.
+نزّل Share4AI-Setup-1.1.5-windows-x64.exe وافتحه ثم اضغط تثبيت فوق النسخة الحالية. المثبت غير موقع رقميًا. التطبيق يفحص الجهاز قبل تنزيل Qwen3.8 27B (نحو 15.3 GB).
 
 ## English
-“Try customer chat on this computer” opens Arabic-first browser chat after starting Local AI and passing the benchmark. Streaming, Stop, New chat and English switching require no commands or copied credentials. Recommended GPU layers now reach the runtime. The desktop shortcut option remains available.
+The provider UI now leads with a device report: GPU, free memory, temperature, utilization, a clear readiness verdict, and vertical setup steps. Copy-report is available for matching hardware. Customer-chat trial remains after Local AI and a passing benchmark. The full translation catalog is restored after a broken build.
 
-Download Share4AI-Setup-1.1.4-windows-x64.exe, open it and select Install. This is a one-computer trial; hosting and two-device use are next. The installer is unsigned. Automated integration tests use a simulated runtime; real performance needs provider-device validation. See MVP_TRIAL.md.
+Download Share4AI-Setup-1.1.5-windows-x64.exe and install over the current copy. The installer is unsigned. The app scans the machine before downloading Qwen3.8 27B (about 15.3 GB).

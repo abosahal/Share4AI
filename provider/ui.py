@@ -12,64 +12,73 @@ from .app import ProviderApp
 def launch(state_dir=None, on_ready=None):
     app = ProviderApp(state_dir)
     language = load_language(app.root)
+
     def tr(source, **values):
         return translate(source, language=language, **values)
+
     def display_message(source):
         return '\n'.join(translate_message(line, language=language) for line in source.split('\n'))
+
     window = tk.Tk()
     window.title(tr('Share4AI Provider 1.1 — Community-powered AI'))
-    window.geometry('1120x820')
-    window.minsize(980, 720)
-    window.configure(bg='#111318')
+    window.geometry('1180x860')
+    window.minsize(1040, 760)
+    paper, lift, ink, mute, line, ok = '#0b0c0e', '#16181d', '#f2f3f5', '#9aa0ab', '#2a2e36', '#8fbf9f'
+    window.configure(bg=paper)
     style = ttk.Style(window)
     style.theme_use('clam')
-    ink, paper, mute, line, lift = '#ececf1', '#111318', '#9aa0ab', '#2a2e36', '#1c2028'
     style.configure('.', background=paper, foreground=ink)
     style.configure('TFrame', background=paper)
     style.configure('Card.TFrame', background=lift)
-    style.configure('TLabel', background=paper, foreground=ink, padding=4)
+    style.configure('TLabel', background=paper, foreground=ink, padding=2)
     style.configure('Mute.TLabel', background=paper, foreground=mute)
-    style.configure('Banner.TLabel', background=lift, foreground=ink, padding=8)
-    style.configure('TButton', padding=10, background='#2a2e36', foreground=ink)
+    style.configure('Card.TLabel', background=lift, foreground=ink)
+    style.configure('CardMute.TLabel', background=lift, foreground=mute)
+    style.configure('Ok.TLabel', background=lift, foreground=ok)
+    style.configure('Banner.TLabel', background=lift, foreground=ink, padding=6)
+    style.configure('TButton', padding=(12, 10), background='#2a2e36', foreground=ink)
     style.map('TButton', background=[('active', '#3a404c'), ('disabled', '#1a1d24')],
               foreground=[('disabled', mute)])
-    style.configure('Accent.TButton', background=ink, foreground=paper)
-    style.map('Accent.TButton', background=[('active', '#ffffff'), ('disabled', '#1a1d24')])
+    style.configure('Accent.TButton', background=ink, foreground=paper, padding=(12, 11))
+    style.map('Accent.TButton', background=[('active', '#ffffff'), ('disabled', '#1a1d24')],
+              foreground=[('disabled', mute)])
     style.configure('TNotebook', background=paper, borderwidth=0)
-    style.configure('TNotebook.Tab', padding=(18, 10), background=lift, foreground=mute)
+    style.configure('TNotebook.Tab', padding=(20, 11), background=lift, foreground=mute)
     style.map('TNotebook.Tab', background=[('selected', paper)], foreground=[('selected', ink)])
-    style.configure('TProgressbar', troughcolor=lift, background=ink)
+    style.configure('TProgressbar', troughcolor='#1a1d24', background=ink)
+    style.configure('Gpu.Horizontal.TProgressbar', troughcolor='#1a1d24', background=ok)
     style.configure('TSeparator', background=line)
     style.configure('TEntry', fieldbackground=lift, foreground=ink)
     style.configure('TSpinbox', fieldbackground=lift, foreground=ink)
 
     header = ttk.Frame(window)
-    header.pack(fill='x', padx=22, pady=(16, 8))
+    header.pack(fill='x', padx=24, pady=(18, 10))
     titles = ttk.Frame(header)
     titles.pack(side='left', fill='x', expand=True)
-    ttk.Label(titles, text=tr('Share4AI  /  Community-powered AI'), font=('Segoe UI', 20, 'bold')).pack(anchor='w')
+    ttk.Label(titles, text=tr('Share4AI  /  Community-powered AI'), font=('Segoe UI', 22, 'bold')).pack(anchor='w')
     ttk.Label(titles, text=tr('Windows pilot • Local AI first • Authenticated outbound sharing'),
               style='Mute.TLabel').pack(anchor='w')
     tools = ttk.Frame(header)
     tools.pack(side='right')
 
     banner = ttk.Frame(window, style='Card.TFrame')
-    banner.pack(fill='x', padx=22, pady=(0, 8))
+    banner.pack(fill='x', padx=24, pady=(0, 10))
     status = tk.StringVar(value=tr('Ready to scan'))
     next_step = tk.StringVar(value=tr('Scan, download, start, then test performance.'))
-    ttk.Label(banner, textvariable=next_step, style='Banner.TLabel', font=('Segoe UI', 11, 'bold')).pack(fill='x', padx=8, pady=(8, 0))
-    status_label = ttk.Label(banner, textvariable=status, style='Banner.TLabel', wraplength=1040)
-    status_label.pack(fill='x', padx=8, pady=(0, 4))
+    ttk.Label(banner, text=tr('Next action'), style='CardMute.TLabel').pack(fill='x', padx=14, pady=(10, 0))
+    ttk.Label(banner, textvariable=next_step, style='Banner.TLabel', font=('Segoe UI', 12, 'bold')).pack(fill='x', padx=8)
+    status_label = ttk.Label(banner, textvariable=status, style='Banner.TLabel', wraplength=1080)
+    status_label.pack(fill='x', padx=8, pady=(0, 2))
     progress = ttk.Progressbar(banner, maximum=100, mode='determinate')
-    progress.pack(fill='x', padx=12, pady=(0, 12))
+    progress.pack(fill='x', padx=14, pady=(0, 14))
 
     def resize_banner(event):
-        status_label.configure(wraplength=max(360, event.width - 48))
+        status_label.configure(wraplength=max(360, event.width - 56))
     window.bind('<Configure>', resize_banner)
 
     tabs = ttk.Notebook(window)
-    tabs.pack(fill='both', expand=True, padx=22, pady=(0, 8))
-    setup_tab, chat, settings = (ttk.Frame(tabs, padding=8) for _ in range(3))
+    tabs.pack(fill='both', expand=True, padx=24, pady=(0, 8))
+    setup_tab, chat, settings = (ttk.Frame(tabs, padding=4) for _ in range(3))
     canvas = tk.Canvas(setup_tab, highlightthickness=0, bg=paper, bd=0)
     scrollbar = ttk.Scrollbar(setup_tab, orient='vertical', command=canvas.yview)
     scrollbar.pack(side='right', fill='y')
@@ -78,14 +87,19 @@ def launch(state_dir=None, on_ready=None):
     setup = ttk.Frame(canvas)
     setup_item = canvas.create_window((0, 0), window=setup, anchor='nw')
     setup.bind('<Configure>', lambda event: canvas.configure(scrollregion=canvas.bbox('all')))
+
     def resize_setup(event):
         canvas.itemconfigure(setup_item, width=event.width)
-        for widget in setup.winfo_children():
-            if isinstance(widget, ttk.Label):
-                widget.configure(wraplength=max(280, event.width - 24))
-    canvas.bind('<Configure>', resize_setup)
+
     for frame, name in [(setup_tab, tr('Device & Setup')), (chat, tr('Local AI')), (settings, tr('Settings'))]:
         tabs.add(frame, text=name)
+
+    body = ttk.Frame(setup)
+    body.pack(fill='both', expand=True)
+    main = ttk.Frame(body)
+    rail = ttk.Frame(body, style='Card.TFrame')
+    main.pack(side='left', fill='both', expand=True, padx=(0, 12))
+    rail.pack(side='right', fill='y', ipadx=8)
 
     device = tk.StringVar(value=tr('Scan your device to find a suitable model.'))
     recommendation = tk.StringVar(value=tr('No recommendation yet'))
@@ -93,13 +107,19 @@ def launch(state_dir=None, on_ready=None):
     mode = tk.StringVar(value='—')
     notes = tk.StringVar(value='')
     network = tk.StringVar(value=tr('OFFLINE'))
-    ttk.Label(setup, text=tr('Device report'), font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(4, 2))
-    ttk.Label(setup, textvariable=device, font=('Segoe UI', 16, 'bold')).pack(anchor='w')
-    ttk.Label(setup, textvariable=readiness, font=('Segoe UI', 11, 'bold')).pack(anchor='w', pady=(2, 0))
-    ttk.Label(setup, textvariable=mode, style='Mute.TLabel').pack(anchor='w')
-    ttk.Label(setup, text=tr('Sizes in gigabytes'), style='Mute.TLabel').pack(anchor='w', pady=(8, 0))
-    resource_rows = ttk.Frame(setup)
-    resource_rows.pack(fill='x', pady=8)
+    gpu_load = tk.IntVar(value=0)
+
+    hero = ttk.Frame(main, style='Card.TFrame')
+    hero.pack(fill='x', pady=(0, 12))
+    ttk.Label(hero, text=tr('This computer'), style='CardMute.TLabel').pack(anchor='w', padx=14, pady=(12, 0))
+    ttk.Label(hero, textvariable=device, style='Card.TLabel', font=('Segoe UI', 18, 'bold')).pack(anchor='w', padx=14, pady=(2, 0))
+    ttk.Label(hero, textvariable=readiness, style='Ok.TLabel', font=('Segoe UI', 12, 'bold')).pack(anchor='w', padx=14, pady=(4, 0))
+    ttk.Label(hero, textvariable=mode, style='CardMute.TLabel').pack(anchor='w', padx=14, pady=(0, 8))
+    gpu_bar = ttk.Progressbar(hero, maximum=100, mode='determinate', variable=gpu_load, style='Gpu.Horizontal.TProgressbar')
+    gpu_bar.pack(fill='x', padx=14, pady=(0, 14))
+
+    resource_rows = ttk.Frame(main)
+    resource_rows.pack(fill='x', pady=(0, 12))
     numbers = {}
     number_labels = []
     metric_keys = (
@@ -108,33 +128,44 @@ def launch(state_dir=None, on_ready=None):
         'Free memory required by this version', 'Disk space required including reserve',
     )
     for index, key in enumerate(metric_keys):
-        ttk.Label(resource_rows, text=tr(key), style='Mute.TLabel').grid(row=index, column=1, sticky='ew', padx=8, pady=2)
+        cell = ttk.Frame(resource_rows, style='Card.TFrame')
+        row, column = divmod(index, 2)
+        cell.grid(row=row, column=column, sticky='nsew', padx=4, pady=4)
+        ttk.Label(cell, text=tr(key), style='CardMute.TLabel').pack(anchor='w', padx=12, pady=(10, 0))
         numbers[key] = tk.StringVar(value='—')
-        label = ttk.Label(resource_rows, textvariable=numbers[key], width=22, anchor='w', font=('Segoe UI', 11, 'bold'))
-        label.grid(row=index, column=0, sticky='w', padx=8, pady=2)
+        label = ttk.Label(cell, textvariable=numbers[key], style='Card.TLabel', font=('Segoe UI', 13, 'bold'))
+        label.pack(anchor='w', padx=12, pady=(2, 10))
         number_labels.append(label)
+    resource_rows.columnconfigure(0, weight=1)
     resource_rows.columnconfigure(1, weight=1)
-    ttk.Label(setup, text=tr('Recommended model'), font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(8, 0))
-    ttk.Label(setup, textvariable=recommendation, wraplength=820).pack(anchor='w', pady=(0, 6))
-    ttk.Label(setup, text=tr('Device notes'), style='Mute.TLabel').pack(anchor='w')
-    ttk.Label(setup, textvariable=notes, wraplength=820, style='Mute.TLabel').pack(anchor='w', pady=(0, 8))
+
+    model_card = ttk.Frame(main, style='Card.TFrame')
+    model_card.pack(fill='x', pady=(0, 12))
+    ttk.Label(model_card, text=tr('Recommended model'), style='CardMute.TLabel').pack(anchor='w', padx=14, pady=(12, 0))
+    ttk.Label(model_card, textvariable=recommendation, style='Card.TLabel', wraplength=640).pack(anchor='w', padx=14, pady=(2, 6))
+    reason_label = ttk.Label(model_card, text=tr('Qwen3.8 27B: 15.3 GB plus runtime'), style='CardMute.TLabel', wraplength=640)
+    reason_label.pack(anchor='w', padx=14, pady=(0, 4))
+    notes_label = ttk.Label(model_card, textvariable=notes, style='CardMute.TLabel', wraplength=640)
+    notes_label.pack(anchor='w', padx=14, pady=(0, 12))
 
     buttons = []
-    row = ttk.Frame(setup)
-    row.pack(fill='x', pady=10)
+
     def provision_if_ready():
         if not app.recommendation or not app.recommendation.model:
             status.set(tr('Download unavailable until device requirements are met. See the reason above.'))
             return
         app.submit(app.provision)
+
+    ttk.Label(rail, text=tr('Device & Setup'), style='Card.TLabel', font=('Segoe UI', 11, 'bold')).pack(anchor='w', padx=12, pady=(12, 8))
     actions = [(tr('1. Scan'), app.scan_device), (tr('2. Download & Verify'), app.provision),
                (tr('3. Start Local AI'), app.start_local), (tr('4. Benchmark'), app.run_benchmark)]
     for index, (label, action) in enumerate(actions):
         kind = 'Accent.TButton' if index == 0 else 'TButton'
-        button = ttk.Button(row, text=label, style=kind, command=lambda a=action: app.submit(a))
-        button.pack(fill='x', pady=3)
+        button = ttk.Button(rail, text=label, style=kind, command=lambda a=action: app.submit(a))
+        button.pack(fill='x', padx=12, pady=3)
         buttons.append(button)
     buttons[1].configure(command=provision_if_ready, state='disabled')
+
     def copy_report():
         try:
             report = diagnostic_text(app.hardware, app.recommendation)
@@ -143,47 +174,59 @@ def launch(state_dir=None, on_ready=None):
             status.set(tr('Device report copied'))
         except tk.TclError:
             status.set(tr('Could not copy device report'))
-    ttk.Button(setup, text=tr('Copy device report'), command=copy_report).pack(anchor='w', pady=(0, 8))
-    ttk.Label(setup, text=tr('Download sizes'), style='Mute.TLabel').pack(anchor='w', pady=(12, 0))
-    sizes_label = ttk.Label(setup, text='Qwen3.8 27B: 15.3 GB', anchor='w', justify='left')
-    sizes_label.pack(anchor='w')
-    number_labels.append(sizes_label)
-    ttk.Label(setup, text=tr('The app also downloads its runtime and verifies the files automatically.'),
-              wraplength=800, style='Mute.TLabel').pack(anchor='w')
-    ttk.Separator(setup).pack(fill='x', pady=16)
-    ttk.Label(setup, text=tr('Sharing connection'), font=('Segoe UI', 12, 'bold')).pack(anchor='w')
-    ttk.Label(setup, textvariable=network, style='Mute.TLabel').pack(anchor='w')
-    ttk.Label(setup, text=tr('Sharing requires a passing benchmark and a provider credential. Stop Sharing cancels the current network job. Local AI stops sharing first.'),
-              wraplength=800, style='Mute.TLabel').pack(anchor='w')
-    share = ttk.Frame(setup)
-    share.pack(anchor='w', pady=8)
+
+    ttk.Button(rail, text=tr('Copy device report'), command=copy_report).pack(fill='x', padx=12, pady=(10, 4))
+    sizes_label = ttk.Label(rail, text=tr('Qwen3.8 27B: 15.3 GB plus runtime'), style='CardMute.TLabel', wraplength=240)
+    sizes_label.pack(anchor='w', padx=12, pady=(4, 2))
+    ttk.Label(rail, text=tr('The app also downloads its runtime and verifies the files automatically.'),
+              style='CardMute.TLabel', wraplength=240).pack(anchor='w', padx=12, pady=(0, 12))
+
+    ttk.Separator(rail).pack(fill='x', padx=12, pady=4)
+    ttk.Label(rail, text=tr('Sharing connection'), style='Card.TLabel', font=('Segoe UI', 11, 'bold')).pack(anchor='w', padx=12, pady=(8, 0))
+    ttk.Label(rail, textvariable=network, style='CardMute.TLabel').pack(anchor='w', padx=12)
+    share_hint = ttk.Label(rail, text=tr('Sharing requires a passing benchmark and a provider credential. Stop Sharing cancels the current network job. Local AI stops sharing first.'),
+                           style='CardMute.TLabel', wraplength=240)
+    share_hint.pack(anchor='w', padx=12, pady=(4, 8))
+    share = ttk.Frame(rail, style='Card.TFrame')
+    share.pack(fill='x', padx=8, pady=(0, 12))
+
     def start_share():
         if not app.trial_client and not os.environ.get('SHARE4AI_PROVIDER_TOKEN'):
             status.set(tr('Sharing activation is not available in this trial. You can use Local AI.'))
             return
         app.submit(app.start_sharing)
+
     button = ttk.Button(share, text=tr('Start Sharing'), command=start_share)
-    button.pack(side='left', padx=3)
+    button.pack(fill='x', pady=3)
     buttons.append(button)
     trial_button = ttk.Button(share, text=tr('Try customer chat on this computer'),
-                             command=lambda: app.submit(app.start_browser_trial))
-    trial_button.pack(side='left', padx=3)
+                              command=lambda: app.submit(app.start_browser_trial))
+    trial_button.pack(fill='x', pady=3)
     buttons.append(trial_button)
     ttk.Button(share, text=tr('Stop Sharing'),
-               command=lambda: threading.Thread(target=app.stop_sharing, daemon=True).start()).pack(side='left', padx=3)
+               command=lambda: threading.Thread(target=app.stop_sharing, daemon=True).start()).pack(fill='x', pady=3)
+
+    def resize_setup(event):
+        canvas.itemconfigure(setup_item, width=event.width)
+        wrap = max(240, event.width - 340)
+        for widget in (reason_label, notes_label, share_hint, sizes_label):
+            widget.configure(wraplength=wrap)
+    canvas.bind('<Configure>', resize_setup)
 
     transcript = tk.Text(chat, wrap='word', font=('Segoe UI', 12), state='disabled',
-                         bg=lift, fg=ink, insertbackground=ink, relief='flat', padx=12, pady=12)
+                         bg=lift, fg=ink, insertbackground=ink, relief='flat', padx=16, pady=16)
     transcript.pack(fill='both', expand=True)
     entry = tk.Text(chat, height=3, wrap='word', font=('Segoe UI', 12),
-                    bg=lift, fg=ink, insertbackground=ink, relief='flat', padx=10, pady=8)
+                    bg=lift, fg=ink, insertbackground=ink, relief='flat', padx=12, pady=10)
     entry.pack(fill='x', pady=8)
     messages = []
+
     def append(text):
         transcript.configure(state='normal')
         transcript.insert('end', text, 'direction')
         transcript.see('end')
         transcript.configure(state='disabled')
+
     def send():
         content = entry.get('1.0', 'end').strip()
         if not content:
@@ -193,16 +236,19 @@ def launch(state_dir=None, on_ready=None):
         append('\n' + tr('You:') + ' ' + content + '\n' + tr('AI:') + ' ')
         snapshot = [dict(m) for m in messages]
         app.submit(lambda: app.chat(snapshot))
+
     chatrow = ttk.Frame(chat)
     chatrow.pack(fill='x')
     sendbutton = ttk.Button(chatrow, text=tr('Send'), style='Accent.TButton', command=send)
     sendbutton.pack(side='left')
     buttons.append(sendbutton)
+
     def clear():
         messages.clear()
         transcript.configure(state='normal')
         transcript.delete('1.0', 'end')
         transcript.configure(state='disabled')
+
     clearbutton = ttk.Button(chatrow, text=tr('Clear conversation'), command=clear)
     clearbutton.pack(side='left', padx=6)
     buttons.append(clearbutton)
@@ -212,18 +258,21 @@ def launch(state_dir=None, on_ready=None):
     address = tk.StringVar(value=app.settings['control_plane'])
     maximum = tk.IntVar(value=app.settings['maximum'])
     advanced = ttk.Frame(settings)
+
     def toggle_advanced():
         if advanced.winfo_manager():
             advanced.pack_forget()
         else:
             advanced.pack(fill='x', pady=8)
+
     ttk.Button(settings, text=tr('Advanced settings (internal testing)'), command=toggle_advanced).pack(anchor='w')
     ttk.Label(advanced, text=tr('Control Plane address')).pack(anchor='w')
     ttk.Entry(advanced, textvariable=address, width=65).pack(anchor='w', pady=6)
-    ttk.Label(settings, text=tr('Max GPU Usage (%)')).pack(anchor='w', pady=(18, 0))
-    ttk.Spinbox(settings, from_=0, to=100, textvariable=maximum, width=8).pack(anchor='w')
+    ttk.Label(settings, text=tr('Max GPU Usage (%)'), font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(18, 0))
+    ttk.Spinbox(settings, from_=0, to=100, textvariable=maximum, width=8).pack(anchor='w', pady=6)
     ttk.Label(settings, text=tr('Sharing pauses when resource usage or temperature is high. This setting does not impose a hard GPU limit. Public sharing activation is coming later.'),
               wraplength=800, style='Mute.TLabel').pack(anchor='w', pady=12)
+
     def save():
         try:
             value = maximum.get()
@@ -232,6 +281,7 @@ def launch(state_dir=None, on_ready=None):
             return
         url = address.get().strip()
         app.submit(lambda: app.save_settings(url, value))
+
     savebutton = ttk.Button(settings, text=tr('Save Settings'), command=save)
     savebutton.pack(anchor='w')
     buttons.append(savebutton)
@@ -241,14 +291,17 @@ def launch(state_dir=None, on_ready=None):
 
     latest = {}
     working = False
+
     def sync_buttons():
         for b in buttons:
             b.configure(state='disabled' if working else 'normal')
         if working or not app.recommendation or not app.recommendation.model:
             buttons[1].configure(state='disabled')
+
     def orient():
         rtl = language == 'ar'
         anchor, justify, side = ('e', 'right', 'right') if rtl else ('w', 'left', 'left')
+
         def visit(widget):
             if isinstance(widget, ttk.Label):
                 widget.configure(anchor=anchor, justify=justify)
@@ -261,25 +314,22 @@ def launch(state_dir=None, on_ready=None):
         visit(window)
         for label in number_labels:
             label.configure(anchor='w', justify='left')
-        for widget in resource_rows.winfo_children():
-            is_number = widget in number_labels
-            widget.grid_configure(column=(0 if is_number else 1) if rtl else (1 if is_number else 0))
-        resource_rows.columnconfigure(0, weight=0 if rtl else 1)
-        resource_rows.columnconfigure(1, weight=1 if rtl else 0)
+        main.pack_configure(side='right' if rtl else 'left')
+        rail.pack_configure(side='left' if rtl else 'right')
         selected = tabs.select()
         ordered = (settings, chat, setup_tab) if rtl else (setup_tab, chat, settings)
         for index, tab in enumerate(ordered):
             tabs.insert(index, tab)
         tabs.select(selected)
         scrollbar.pack_configure(side='left' if rtl else 'right')
-        for frame in (share, chatrow):
-            for widget in frame.winfo_children():
-                widget.pack_configure(side=side)
+        for widget in chatrow.winfo_children():
+            widget.pack_configure(side=side)
         transcript.tag_configure('direction', justify=justify)
         transcript.tag_add('direction', '1.0', 'end')
         entry.tag_configure('direction', justify=justify)
         entry.tag_add('direction', '1.0', 'end')
         entry.configure(insertwidth=2)
+
     def change_language():
         nonlocal language
         old = language
@@ -292,6 +342,7 @@ def launch(state_dir=None, on_ready=None):
         replacements = {translate(key, language=old): translate(key, language=target)
                         for key in TEXT if '{' not in key}
         language = target
+
         def update(widget):
             if 'text' in widget.keys():
                 current = str(widget.cget('text'))
@@ -312,11 +363,26 @@ def launch(state_dir=None, on_ready=None):
             render(kind, value)
         next_step.set(guidance)
         orient()
+
     language_button = ttk.Button(tools, text='English' if language == 'ar' else 'العربية', command=change_language)
     language_button.pack(side='right', padx=8)
     entry.bind('<KeyRelease>', lambda event: entry.tag_add('direction', '1.0', 'end'))
+
     def gb(amount):
         return f'{amount / 1024:.1f} GB'
+
+    def apply_gpu(hw, rec):
+        gpu = selected_gpu(hw, rec) if hw else None
+        device.set(gpu.name if gpu else tr('No supported NVIDIA GPU'))
+        fields = gpu_fields(gpu)
+        numbers['Graphics card'].set(fields['name'] or '—')
+        numbers['GPU memory'].set(fields['vram'])
+        numbers['Free GPU memory'].set(fields['free_vram'])
+        numbers['GPU usage now'].set(fields['utilization'])
+        numbers['GPU temperature'].set(fields['temperature'])
+        match = re.fullmatch(r'(\d+)%', fields['utilization'] or '')
+        gpu_load.set(int(match[1]) if match else 0)
+
     def render(kind, value):
         nonlocal working
         if kind in ('status', 'hardware', 'recommendation', 'sharing', 'benchmark'):
@@ -338,14 +404,7 @@ def launch(state_dir=None, on_ready=None):
             working = bool(value)
             sync_buttons()
         elif kind == 'hardware':
-            gpu = selected_gpu(value, app.recommendation)
-            device.set(gpu.name if gpu else tr('No supported NVIDIA GPU'))
-            fields = gpu_fields(gpu)
-            numbers['Graphics card'].set(fields['name'] or '—')
-            numbers['GPU memory'].set(fields['vram'])
-            numbers['Free GPU memory'].set(fields['free_vram'])
-            numbers['GPU usage now'].set(fields['utilization'])
-            numbers['GPU temperature'].set(fields['temperature'])
+            apply_gpu(value, app.recommendation)
             numbers['Processor'].set(f'{value.cores}')
             for key, amount in (('Installed memory', value.ram_mb), ('Free memory', value.available_ram_mb),
                                 ('Free disk space (not required space)', value.disk_free_mb)):
@@ -356,13 +415,7 @@ def launch(state_dir=None, on_ready=None):
             readiness.set(tr(verdict(value)))
             mode.set(tr(mode_label(value)))
             if app.hardware:
-                gpu = selected_gpu(app.hardware, value)
-                fields = gpu_fields(gpu)
-                numbers['Graphics card'].set(fields['name'] or '—')
-                numbers['GPU memory'].set(fields['vram'])
-                numbers['Free GPU memory'].set(fields['free_vram'])
-                numbers['GPU usage now'].set(fields['utilization'])
-                numbers['GPU temperature'].set(fields['temperature'])
+                apply_gpu(app.hardware, value)
             for key, amount in (('Free memory required by this version', value.required_free_ram_mb),
                                 ('Disk space required including reserve', value.required_disk_mb)):
                 numbers[key].set(gb(amount) if amount else '—')
@@ -379,24 +432,29 @@ def launch(state_dir=None, on_ready=None):
             status.set(tr('Benchmark ' + ('PASSED' if value.passed else 'below sharing target') + ' • Worst TTFT {ttft}s • Slowest {speed} tokens/s',
                           ttft=f'{value.max_ttft_seconds:.2f}', speed=f'{value.min_tokens_per_second:.1f}'))
             next_step.set(tr('Performance passed. Use Local AI or configure sharing.') if value.passed else tr('Use Local AI. Performance is below the sharing target.'))
+
     def pump():
         while not app.events.empty():
             kind, value = app.events.get_nowait()
             render(kind, value)
         if not app.closed:
             window.after(100, pump)
+
     def close():
         window.withdraw()
+
         def cleanup():
             app.close()
         thread = threading.Thread(target=cleanup, daemon=True)
         thread.start()
+
         def finish():
             if thread.is_alive():
                 window.after(100, finish)
             else:
                 window.destroy()
         finish()
+
     window.protocol('WM_DELETE_WINDOW', close)
     orient()
     if on_ready is None:
