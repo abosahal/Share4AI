@@ -7,6 +7,7 @@ import threading
 import tkinter as tk
 from tkinter import ttk
 from .app import ProviderApp
+from .documents import DocumentError, MAX_FILES, read_document
 
 
 def launch(state_dir=None, on_ready=None):
@@ -188,11 +189,48 @@ def launch(state_dir=None, on_ready=None):
     composer = ttk.Frame(chat)
     composer.grid(row=1, column=0, sticky='ew', padx=8, pady=(0, 8))
     composer.columnconfigure(0, weight=1)
+    composer.columnconfigure(1, weight=1)
     entry = tk.Text(composer, height=4, wrap='word', font=('Segoe UI', 12),
                     bg='#0c0d10', fg=ink, insertbackground=ink, relief='solid', bd=1,
                     highlightthickness=1, highlightbackground=line, highlightcolor=ink, padx=10, pady=8)
     entry.grid(row=0, column=0, columnspan=2, sticky='ew', pady=(0, 6))
-    messages = []
+    files = ttk.Frame(composer)
+    files.grid(row=1, column=0, columnspan=2, sticky='ew', pady=(0, 6))
+    messages, attachments = [], []
+
+    def show_attachments():
+        for child in files.winfo_children():
+            child.destroy()
+        for index, doc in enumerate(attachments):
+            ttk.Label(files, text=tr('Attached') + ': ' + doc['name'], style='Mute.TLabel').grid(
+                row=index // 2, column=(index % 2) * 2, sticky='w', padx=(0, 6))
+            ttk.Button(files, text='×', width=3, command=lambda i=index: remove_attachment(i)).grid(
+                row=index // 2, column=(index % 2) * 2 + 1, sticky='w')
+
+    def remove_attachment(index):
+        if 0 <= index < len(attachments):
+            attachments.pop(index)
+            show_attachments()
+
+    def attach():
+        from tkinter import filedialog
+        selected = filedialog.askopenfilenames(
+            parent=window, title=tr('Attach file'),
+            filetypes=((tr('Documents'), '*.txt;*.md;*.pdf;*.docx;*.json;*.csv;*.log'),
+                       (tr('All files'), '*.*')))
+        for path in selected:
+            if len(attachments) >= MAX_FILES:
+                status.set(tr('Too many attached files'))
+                break
+            try:
+                attachments.append(read_document(path))
+            except DocumentError as error:
+                status.set(display_message(str(error)))
+                return
+            except OSError:
+                status.set(tr('Could not read this file'))
+                return
+        show_attachments()
 
     def append(text):
         transcript.configure(state='normal')
@@ -202,29 +240,54 @@ def launch(state_dir=None, on_ready=None):
 
     def send():
         content = entry.get('1.0', 'end').strip()
-        if not content:
+        if not content and not attachments:
             return
         entry.delete('1.0', 'end')
-        messages.append(dict(role='user', content=content))
-        append('\n' + tr('You:') + ' ' + content + '\n' + tr('AI:') + ' ')
-        snapshot = [dict(m) for m in messages]
+        shown, payload = content, content
+        for doc in attachments:
+            shown = (shown + '\n' if shown else '') + tr('Attached') + ': ' + doc['name']
+            payload = (payload + '\n' if payload else '') + f"Attached file {doc['name']}:\n{doc['text']}"
+        attachments.clear()
+        show_attachments()
+        messages.append(dict(role='user', content=payload))
+        append('\n' + tr('You:') + ' ' + shown + '\n' + tr('AI:') + ' ')
+        snapshot = [dict(item) for item in messages]
         app.submit(lambda: app.chat(snapshot))
 
     sendbutton = ttk.Button(composer, text=tr('Send'), style='Accent.TButton', command=send)
-    sendbutton.grid(row=1, column=0, sticky='ew', padx=(0, 4))
+    sendbutton.grid(row=2, column=0, sticky='ew', padx=(0, 4), pady=2)
     buttons.append(sendbutton)
+    attachbutton = ttk.Button(composer, text=tr('Attach file'), command=attach)
+    attachbutton.grid(row=2, column=1, sticky='ew', pady=2)
+    buttons.append(attachbutton)
+
+    def copy_chat():
+        text = transcript.get('1.0', 'end').strip()
+        if not text:
+            status.set(tr('Nothing to copy'))
+            return
+        try:
+            window.clipboard_clear()
+            window.clipboard_append(text)
+            status.set(tr('Conversation copied'))
+        except tk.TclError:
+            status.set(tr('Could not copy conversation'))
+
+    ttk.Button(composer, text=tr('Copy conversation'), command=copy_chat).grid(
+        row=3, column=0, sticky='ew', padx=(0, 4), pady=2)
 
     def clear():
         messages.clear()
+        attachments.clear()
+        show_attachments()
         transcript.configure(state='normal')
         transcript.delete('1.0', 'end')
         transcript.configure(state='disabled')
 
-    clearbutton = ttk.Button(composer, text=tr('Clear conversation'), command=clear)
-    clearbutton.grid(row=1, column=1, sticky='ew')
-    buttons.append(clearbutton)
-    ttk.Label(chat, text=tr('Local conversation stays in memory and is not saved to history.'),
-              style='Mute.TLabel').grid(row=2, column=0, sticky='w', padx=8, pady=(0, 8))
+    ttk.Button(composer, text=tr('Clear conversation'), command=clear).grid(
+        row=3, column=1, sticky='ew', pady=2)
+    ttk.Label(chat, text=tr("Uses this computer's clock and live web lookup for current facts."),
+              style='Mute.TLabel').grid(row=2, column=0, sticky='ew', padx=8, pady=(0, 8))
 
     address = tk.StringVar(value=app.settings['control_plane'])
     maximum = tk.IntVar(value=app.settings['maximum'])

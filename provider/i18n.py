@@ -150,7 +150,23 @@ No eligible provider for this model|لا يوجد مزود مستوفٍ للشر
 Provider busy; retry later|المزود مشغول؛ أعد المحاولة لاحقًا
 Two distinct nonempty credentials are required|يلزم اعتمادان مختلفان وغير فارغين
 Share4AI local protocol fixture: http://127.0.0.1:8000 (no jobs, no persistence)|خادم اختبار بروتوكول Share4AI المحلي: http://127.0.0.1:8000 (بلا مهام أو تخزين دائم)
-Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only|تجربة Share4AI المحلية الموثقة على 127.0.0.1:8000؛ مزود موثوق واحد؛ تخزين في الذاكرة فقط'''
+Share4AI authenticated local pilot on 127.0.0.1:8000; one trusted provider; memory only|تجربة Share4AI المحلية الموثقة على 127.0.0.1:8000؛ مزود موثوق واحد؛ تخزين في الذاكرة فقط
+Copy conversation|نسخ المحادثة
+Conversation copied|تم نسخ المحادثة
+Nothing to copy|لا توجد محادثة لنسخها
+Could not copy conversation|تعذر نسخ المحادثة
+Attach file|إرفاق ملف
+Remove attachment|إزالة المرفق
+Searching the web|جارٍ البحث في الإنترنت
+Answering|جارٍ توليد الإجابة
+This file type is not supported. Attach text, PDF, or Word.|نوع الملف غير مدعوم. أرفق نصًا أو PDF أو Word.
+Attached file is too large|الملف المرفق كبير جدًا
+No readable text in this file|لا يوجد نص قابل للقراءة في هذا الملف
+Could not read this file|تعذر قراءة الملف
+Too many attached files|عدد الملفات المرفقة أكبر من المسموح
+Uses this computer's clock and live web lookup for current facts.|يستخدم ساعة هذا الجهاز والبحث الحي في الإنترنت للوقائع الحالية.
+Documents|مستندات
+All files|كل الملفات'''
 TEXT = dict(line.split('|', 1) for line in _ROWS.splitlines())
 TEXT.update({
     'This device has less total memory than this version requires. Closing apps alone will not be enough.': 'إجمالي ذاكرة الجهاز أقل مما تتطلبه هذه النسخة. إغلاق البرامج وحده لن يكون كافيًا.',
@@ -171,6 +187,7 @@ TEXT.update({
     'Unsupported language': 'اللغة غير مدعومة',
     'Scan, download, start, then test performance.': 'افحص الجهاز، ثم نزّل النموذج وشغّله واختبر الأداء.',
     'Could not save language; check folder access.': 'تعذر حفظ اللغة؛ تحقق من صلاحية الوصول إلى المجلد.',
+    'Attached': 'مرفق',
     'Download complete. Start Local AI, then test performance.': 'اكتمل التنزيل. شغّل الذكاء المحلي ثم اختبر الأداء.',
     'Local AI is ready. Test performance before sharing.': 'الذكاء المحلي جاهز. اختبر الأداء قبل المشاركة.',
     'Stopped. Start Local AI when you are ready.': 'تم الإيقاف. شغّل الذكاء المحلي عندما تكون جاهزًا.',

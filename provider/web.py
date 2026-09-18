@@ -1,4 +1,5 @@
 """Outbound HTTPS lookup used by local chat. The model weights stay offline."""
+from datetime import datetime
 from html.parser import HTMLParser
 import ipaddress
 import json
@@ -11,6 +12,9 @@ import urllib.request
 USER_AGENT = 'Share4AI-Provider/1.1 (local research)'
 MAX_BODY = 400_000
 TIMEOUT = 8
+ARABIC_DAYS = ('الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت', 'الأحد')
+ARABIC_MONTHS = ('يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
+                 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر')
 
 
 class WebError(RuntimeError):
@@ -121,6 +125,22 @@ def fetch_page(url, opener=None):
     return ' '.join(parser.parts)[:2500]
 
 
+def clock_context(now=None):
+    now = now or datetime.now().astimezone()
+    iso = now.strftime('%Y-%m-%d')
+    clock = now.strftime('%H:%M')
+    offset = now.strftime('%z')
+    weekday_en = now.strftime('%A')
+    weekday_ar = ARABIC_DAYS[now.weekday()]
+    month_ar = ARABIC_MONTHS[now.month - 1]
+    return (
+        f'The current local date and time is {weekday_en} {iso} {clock} (UTC{offset}). '
+        f'Today is {iso}. For "today", "now", or the current date, use this clock. '
+        f'Do not use a training-cutoff date. '
+        f'اليوم هو {weekday_ar} {now.day} {month_ar} {now.year}، الساعة {clock}.'
+    )
+
+
 def context_for_messages(messages, search=search_web, fetch=fetch_page):
     user = next((m.get('content', '') for m in reversed(messages or []) if m.get('role') == 'user'), '')
     if len(user.strip()) < 4:
@@ -145,5 +165,30 @@ def context_for_messages(messages, search=search_web, fetch=fetch_page):
         return ''
     return (
         'Live web research for this question. Prefer these sources over training memory. '
+        'For the current date or time, prefer the clock system message over the web. '
         'Cite URLs when you use them.\n' + '\n'.join(blocks)
     )[:2500]
+
+
+def _fit(payload, limit=11000):
+    while sum(len(m['content']) for m in payload) > limit and len(payload) > 3:
+        for index, message in enumerate(payload):
+            if message['role'] != 'system':
+                del payload[index]
+                break
+        else:
+            break
+    total = sum(len(m['content']) for m in payload)
+    if total > limit and payload:
+        extra = total - limit
+        payload[-1] = dict(payload[-1], content=payload[-1]['content'][extra:] if extra < len(payload[-1]['content']) else payload[-1]['content'][:limit])
+    return payload
+
+
+def augment_messages(messages, now=None, search=search_web, fetch=fetch_page):
+    payload = [{'role': 'system', 'content': clock_context(now)}]
+    web = context_for_messages(messages, search=search, fetch=fetch)
+    if web:
+        payload.append({'role': 'system', 'content': web})
+    payload.extend(dict(role=item['role'], content=item['content']) for item in messages or [])
+    return _fit(payload)

@@ -1,11 +1,11 @@
-# Share4AI 1.1.6
+# Share4AI 1.1.7
 
 ## العربية
-إصلاح الواجهة: صفحة الجهاز لم تعد تختفي، وأزرار التشغيل والتنزيل ثابتة أسفل الشاشة. المحادثة تعرض حقل الكتابة وزر الإرسال دائمًا. النموذج الذي نُزّل يبقى؛ ثبّت فوق النسخة الحالية ثم اضغط تشغيل الذكاء المحلي.
+الساعة المحلية تُحقن في كل رسالة حتى لا يجيب النموذج بتاريخ تدريب قديم. البحث في الإنترنت يعمل مع المحادثة. أزرار نسخ المحادثة وإرفاق ملفات نصية/PDF/Word ظاهرة أسفل حقل الكتابة. ثبّت فوق النسخة الحالية؛ النموذج المنزل يبقى.
 
-نزّل Share4AI-Setup-1.1.6-windows-x64.exe.
+نزّل Share4AI-Setup-1.1.7-windows-x64.exe.
 
 ## English
-UI fix: the device page no longer collapses, setup actions stay on screen, and Local AI always shows the text box and Send. Keep the downloaded model; install over the current copy, then start Local AI.
+Each chat now includes this computer's clock so the model cannot answer with a training-cutoff date. Live web lookup is attached to local chat. Copy conversation and attach text/PDF/Word files from the composer. Install over the current copy; the downloaded model stays.
 
-Download Share4AI-Setup-1.1.6-windows-x64.exe.
+Download Share4AI-Setup-1.1.7-windows-x64.exe.

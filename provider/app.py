@@ -139,8 +139,12 @@ class ProviderApp:
         self.busy = True
         try:
             self.start_local()
+            self.emit('status', 'Searching the web')
+            from .web import augment_messages
+            payload = augment_messages(messages)
+            self.emit('status', 'Answering')
             answer = ''
-            for event in self.runtime.stream(messages, cancel=self.cancel):
+            for event in self.runtime.stream(payload, max_tokens=768, cancel=self.cancel):
                 if event.text:
                     answer += event.text
                     self.emit('token', event.text)

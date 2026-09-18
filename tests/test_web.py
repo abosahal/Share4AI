@@ -1,5 +1,9 @@
 import unittest
-from provider.web import search_web, fetch_page, context_for_messages, WebError, _public_https
+from datetime import datetime, timedelta, timezone
+from provider.web import (
+    search_web, fetch_page, context_for_messages, WebError, _public_https,
+    clock_context, augment_messages,
+)
 
 
 class WebTests(unittest.TestCase):
@@ -36,6 +40,31 @@ class WebTests(unittest.TestCase):
 
     def test_short_messages_skip_search(self):
         self.assertEqual(context_for_messages([{'role': 'user', 'content': 'ok'}], search=lambda q: [_ for _ in ()]), '')
+
+    def test_clock_uses_supplied_now_not_training_cutoff(self):
+        now = datetime(2026, 9, 18, 4, 23, tzinfo=timezone(timedelta(hours=3)))
+        clock = clock_context(now)
+        self.assertIn('2026-09-18', clock)
+        self.assertIn('الجمعة', clock)
+        self.assertNotIn('2024', clock)
+        payload = augment_messages(
+            [{'role': 'user', 'content': 'ما تاريخ اليوم؟'}],
+            now=now,
+            search=lambda q: [],
+            fetch=lambda url: '',
+        )
+        self.assertEqual(payload[0]['role'], 'system')
+        self.assertIn('2026-09-18', payload[0]['content'])
+        self.assertEqual(payload[-1]['content'], 'ما تاريخ اليوم؟')
+
+    def test_augment_includes_web_research(self):
+        payload = augment_messages(
+            [{'role': 'user', 'content': 'What is happening in Riyadh today?'}],
+            now=datetime(2026, 9, 18, tzinfo=timezone.utc),
+            search=lambda q: [{'title': 'Riyadh', 'url': 'https://example.com', 'snippet': 'Update'}],
+            fetch=lambda url: 'ignored',
+        )
+        self.assertTrue(any('Live web research' in m['content'] for m in payload))
 
 
 if __name__ == '__main__':
