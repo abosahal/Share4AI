@@ -1,5 +1,9 @@
 # تجربة MVP الأولى | First MVP trial
 
+**[تنزيل مثبت 1.1.4 مباشرة | Download installer](https://github.com/abosahal/Share4AI/releases/download/windows-preview-18-1/Share4AI-Setup-1.1.4-windows-x64.exe)**
+
+[SHA256](https://github.com/abosahal/Share4AI/releases/download/windows-preview-18-1/Share4AI-Setup-1.1.4-windows-x64.exe.sha256) · [نجاح البناء والتثبيت والإزالة | Successful build/install/uninstall](https://github.com/abosahal/Share4AI/actions/runs/35266697656)
+
 ## العربية
 هذه الدفعة تضيف محادثة المستخدم في المتصفح فوق مسار المشاركة الحقيقي داخل تطبيق المزود. الاستضافة مؤجلة بناءً على قرار المستخدم؛ التجربة الحالية على جهاز واحد ولا تفتح منفذًا للشبكة العامة.
 
@@ -35,4 +39,3 @@ The customer never enters node names, model hashes or credentials. Chat stays in
 
 ### Next slice
 After a successful real-provider trial: hosted HTTPS service, in-app provider enrollment and a customer link usable from another device, with durable identity/credentials and service readiness monitoring. The current broker remains loopback-only and must not be deployed publicly as-is.
-
