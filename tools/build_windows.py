@@ -4,9 +4,18 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import subprocess
 import sys
+
+
+def app_version(root):
+    text = (root / 'packaging' / 'Share4AI.iss').read_text(encoding='utf-8')
+    match = re.search(r'#define AppVersion "([^"]+)"', text)
+    if not match:
+        raise RuntimeError('AppVersion missing from Share4AI.iss')
+    return match[1]
 
 
 def main():
@@ -34,7 +43,7 @@ def main():
     if process.returncode or not report.is_file() or not json.loads(report.read_text())['ok']:
         raise RuntimeError('Packaged UI smoke test failed; installer not built')
     subprocess.run([str(compiler), str(root / 'packaging' / 'Share4AI.iss')], check=True)
-    installer = root / 'dist' / 'installer' / 'Share4AI-Setup-1.1.4-windows-x64.exe'
+    installer = root / 'dist' / 'installer' / f'Share4AI-Setup-{app_version(root)}-windows-x64.exe'
     digest = hashlib.sha256(installer.read_bytes()).hexdigest()
     installer.with_suffix('.exe.sha256').write_text(digest + '  ' + installer.name + '\n', encoding='ascii')
     print(installer)

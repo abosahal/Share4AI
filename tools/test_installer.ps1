@@ -9,7 +9,9 @@ $startLink = Join-Path ([Environment]::GetFolderPath('Programs')) 'Share4AI.lnk'
 if ((Test-Path -LiteralPath $uninstallKey) -or (Test-Path -LiteralPath $desktopLink) -or (Test-Path -LiteralPath $startLink) -or (Test-Path -LiteralPath $testDir)) {
     throw 'An installation or shortcut already exists; do not overwrite it during testing'
 }
-$setupFile = Join-Path $repoRoot 'dist/installer/Share4AI-Setup-1.1.4-windows-x64.exe'
+$iss = Get-Content -LiteralPath (Join-Path $repoRoot 'packaging/Share4AI.iss') -Raw
+if ($iss -notmatch '#define AppVersion "([^"]+)"') { throw 'AppVersion missing' }
+$setupFile = Join-Path $repoRoot ("dist/installer/Share4AI-Setup-{0}-windows-x64.exe" -f $Matches[1])
 $report = Join-Path $repoRoot 'build/installed-smoke.json'
 try {
     foreach ($attempt in 1..3) {
