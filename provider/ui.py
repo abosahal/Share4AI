@@ -1,5 +1,6 @@
 from provider.i18n import tr as translate, display_message as translate_message, TEXT
 from .preferences import load_language, save_language
+from .readiness import diagnostic_text, gpu_fields, mode_label, selected_gpu, verdict
 import re
 import os
 import threading
@@ -88,22 +89,35 @@ def launch(state_dir=None, on_ready=None):
 
     device = tk.StringVar(value=tr('Scan your device to find a suitable model.'))
     recommendation = tk.StringVar(value=tr('No recommendation yet'))
+    readiness = tk.StringVar(value=tr('Ready to scan'))
+    mode = tk.StringVar(value='—')
+    notes = tk.StringVar(value='')
     network = tk.StringVar(value=tr('OFFLINE'))
-    ttk.Label(setup, textvariable=device, font=('Segoe UI', 13, 'bold')).pack(anchor='w', pady=(4, 8))
-    ttk.Label(setup, text=tr('Sizes in gigabytes'), style='Mute.TLabel').pack(anchor='w')
+    ttk.Label(setup, text=tr('Device report'), font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(4, 2))
+    ttk.Label(setup, textvariable=device, font=('Segoe UI', 16, 'bold')).pack(anchor='w')
+    ttk.Label(setup, textvariable=readiness, font=('Segoe UI', 11, 'bold')).pack(anchor='w', pady=(2, 0))
+    ttk.Label(setup, textvariable=mode, style='Mute.TLabel').pack(anchor='w')
+    ttk.Label(setup, text=tr('Sizes in gigabytes'), style='Mute.TLabel').pack(anchor='w', pady=(8, 0))
     resource_rows = ttk.Frame(setup)
     resource_rows.pack(fill='x', pady=8)
     numbers = {}
     number_labels = []
-    for index, key in enumerate(('Installed memory', 'Free memory', 'Free disk space (not required space)',
-                                 'Free memory required by this version', 'Disk space required including reserve')):
-        ttk.Label(resource_rows, text=tr(key), style='Mute.TLabel').grid(row=index, column=1, sticky='ew', padx=8, pady=3)
+    metric_keys = (
+        'Graphics card', 'GPU memory', 'Free GPU memory', 'GPU usage now', 'GPU temperature',
+        'Processor', 'Installed memory', 'Free memory', 'Free disk space (not required space)',
+        'Free memory required by this version', 'Disk space required including reserve',
+    )
+    for index, key in enumerate(metric_keys):
+        ttk.Label(resource_rows, text=tr(key), style='Mute.TLabel').grid(row=index, column=1, sticky='ew', padx=8, pady=2)
         numbers[key] = tk.StringVar(value='—')
-        label = ttk.Label(resource_rows, textvariable=numbers[key], width=14, anchor='w', font=('Segoe UI', 12, 'bold'))
-        label.grid(row=index, column=0, sticky='w', padx=8, pady=3)
+        label = ttk.Label(resource_rows, textvariable=numbers[key], width=22, anchor='w', font=('Segoe UI', 11, 'bold'))
+        label.grid(row=index, column=0, sticky='w', padx=8, pady=2)
         number_labels.append(label)
     resource_rows.columnconfigure(1, weight=1)
-    ttk.Label(setup, textvariable=recommendation, wraplength=820).pack(anchor='w', pady=10)
+    ttk.Label(setup, text=tr('Recommended model'), font=('Segoe UI', 12, 'bold')).pack(anchor='w', pady=(8, 0))
+    ttk.Label(setup, textvariable=recommendation, wraplength=820).pack(anchor='w', pady=(0, 6))
+    ttk.Label(setup, text=tr('Device notes'), style='Mute.TLabel').pack(anchor='w')
+    ttk.Label(setup, textvariable=notes, wraplength=820, style='Mute.TLabel').pack(anchor='w', pady=(0, 8))
 
     buttons = []
     row = ttk.Frame(setup)
@@ -121,6 +135,15 @@ def launch(state_dir=None, on_ready=None):
         button.pack(fill='x', pady=3)
         buttons.append(button)
     buttons[1].configure(command=provision_if_ready, state='disabled')
+    def copy_report():
+        try:
+            report = diagnostic_text(app.hardware, app.recommendation)
+            window.clipboard_clear()
+            window.clipboard_append(report)
+            status.set(tr('Device report copied'))
+        except tk.TclError:
+            status.set(tr('Could not copy device report'))
+    ttk.Button(setup, text=tr('Copy device report'), command=copy_report).pack(anchor='w', pady=(0, 8))
     ttk.Label(setup, text=tr('Download sizes'), style='Mute.TLabel').pack(anchor='w', pady=(12, 0))
     sizes_label = ttk.Label(setup, text='Qwen3.8 27B: 15.3 GB', anchor='w', justify='left')
     sizes_label.pack(anchor='w')
@@ -280,7 +303,7 @@ def launch(state_dir=None, on_ready=None):
         window.title(tr('Share4AI Provider 1.1 — Community-powered AI'))
         for tab, key in ((setup_tab, 'Device & Setup'), (chat, 'Local AI'), (settings, 'Settings')):
             tabs.tab(tab, text=tr(key))
-        for variable in (device, recommendation, status, network, next_step):
+        for variable in (device, recommendation, status, network, next_step, readiness, mode, notes):
             if variable.get() in replacements:
                 variable.set(replacements[variable.get()])
         language_button.configure(text='English' if language == 'ar' else 'العربية')
@@ -315,13 +338,31 @@ def launch(state_dir=None, on_ready=None):
             working = bool(value)
             sync_buttons()
         elif kind == 'hardware':
-            gpu = ', '.join(g.name for g in value.gpus) or tr('No supported NVIDIA GPU')
-            device.set(gpu)
+            gpu = selected_gpu(value, app.recommendation)
+            device.set(gpu.name if gpu else tr('No supported NVIDIA GPU'))
+            fields = gpu_fields(gpu)
+            numbers['Graphics card'].set(fields['name'] or '—')
+            numbers['GPU memory'].set(fields['vram'])
+            numbers['Free GPU memory'].set(fields['free_vram'])
+            numbers['GPU usage now'].set(fields['utilization'])
+            numbers['GPU temperature'].set(fields['temperature'])
+            numbers['Processor'].set(f'{value.cores}')
             for key, amount in (('Installed memory', value.ram_mb), ('Free memory', value.available_ram_mb),
                                 ('Free disk space (not required space)', value.disk_free_mb)):
                 numbers[key].set(gb(amount))
+            notes.set('\n'.join(display_message(item) for item in value.warnings) if value.warnings else '')
         elif kind == 'recommendation':
             recommendation.set((value.model['id'] if value.model else tr('No suitable model')) + '\n' + display_message(value.reason))
+            readiness.set(tr(verdict(value)))
+            mode.set(tr(mode_label(value)))
+            if app.hardware:
+                gpu = selected_gpu(app.hardware, value)
+                fields = gpu_fields(gpu)
+                numbers['Graphics card'].set(fields['name'] or '—')
+                numbers['GPU memory'].set(fields['vram'])
+                numbers['Free GPU memory'].set(fields['free_vram'])
+                numbers['GPU usage now'].set(fields['utilization'])
+                numbers['GPU temperature'].set(fields['temperature'])
             for key, amount in (('Free memory required by this version', value.required_free_ram_mb),
                                 ('Disk space required including reserve', value.required_disk_mb)):
                 numbers[key].set(gb(amount) if amount else '—')
