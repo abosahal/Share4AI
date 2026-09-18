@@ -5,6 +5,7 @@ import ipaddress
 import json
 import re
 import socket
+import xml.etree.ElementTree as ET
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -79,23 +80,77 @@ def _get(url, accept='application/json'):
     return data
 
 
+NEWS_RE = re.compile(
+    r'(أخبار|اخبار|خبر|عاجل|صحافة|ابحث|news|latest|headline|breaking|search)',
+    re.I,
+)
+
+
+def _clean_query(query):
+    query = ' '.join((query or '').split())
+    query = re.sub(
+        r'^(?:please\s+)?(?:ابحث(?:ي)?(?:\s+عن)?|search(?:\s+for)?|find|look up)\s+',
+        '',
+        query,
+        flags=re.I,
+    )
+    return query[:200]
+
+
 def _wikipedia_lang(text):
     return 'ar' if re.search(r'[\u0600-\u06FF]', text or '') else 'en'
 
 
-def search_web(query, opener=None):
-    query = ' '.join((query or '').split())[:200]
+def search_news(query, opener=None):
+    query = _clean_query(query)
     if len(query) < 2:
         return []
     lang = _wikipedia_lang(query)
-    encoded = urllib.parse.quote(query)
+    hl, gl, ceid = ('ar', 'SA', 'SA:ar') if lang == 'ar' else ('en', 'US', 'US:en')
+    url = (
+        'https://news.google.com/rss/search?q=' + urllib.parse.quote(query)
+        + f'&hl={hl}&gl={gl}&ceid={ceid}'
+    )
+    try:
+        raw = _get(url, accept='application/rss+xml,application/xml,text/xml') if opener is None else opener(url)
+        root = ET.fromstring(raw)
+    except (WebError, ValueError, OSError, ET.ParseError):
+        return []
     results = []
+    for item in root.iter('item'):
+        title = ' '.join((item.findtext('title') or '').split())
+        link = (item.findtext('link') or '').strip()
+        source = ' '.join((item.findtext('source') or '').split())
+        published = ' '.join((item.findtext('pubDate') or '').split())
+        if not title:
+            continue
+        snippet = ' — '.join(part for part in (source, published) if part)[:280]
+        results.append({'title': title, 'url': link, 'snippet': snippet})
+        if len(results) >= 6:
+            break
+    return results
+
+
+def search_web(query, opener=None):
+    query = _clean_query(query)
+    if len(query) < 2:
+        return []
+    results = []
+    if NEWS_RE.search(query):
+        results.extend(search_news(query, opener=opener))
+        if results:
+            return results[:6]
+    lang = _wikipedia_lang(query)
+    encoded = urllib.parse.quote(query)
     wiki = (
         f'https://{lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch={encoded}'
         '&srlimit=3&format=json&utf8=1'
     )
-    raw = _get(wiki) if opener is None else opener(wiki)
-    payload = json.loads(raw.decode('utf-8', errors='replace'))
+    try:
+        raw = _get(wiki) if opener is None else opener(wiki)
+        payload = json.loads(raw.decode('utf-8', errors='replace'))
+    except (WebError, ValueError, OSError):
+        payload = {}
     for item in payload.get('query', {}).get('search', [])[:3]:
         title = item.get('title') or ''
         snippet = re.sub(r'<[^>]+>', '', item.get('snippet') or '')
@@ -109,13 +164,14 @@ def search_web(query, opener=None):
     try:
         raw = _get(ddg) if opener is None else opener(ddg)
         instant = json.loads(raw.decode('utf-8', errors='replace'))
-    except (WebError, ValueError):
+    except (WebError, ValueError, OSError):
         instant = {}
     abstract = (instant.get('AbstractText') or '')[:400]
     source = instant.get('AbstractURL') or ''
     if abstract:
         results.insert(0, {'title': instant.get('Heading') or query, 'url': source, 'snippet': abstract})
-    return results[:4]
+    return results[:6]
+
 
 
 def fetch_page(url, opener=None):
@@ -141,6 +197,15 @@ def clock_context(now=None):
     )
 
 
+ANSWER_RULES = (
+    'You already have the current clock and, when present, live web headlines. '
+    'Answer from those facts. Cite source titles and URLs. '
+    'Never say you cannot access the internet, never tell the user to visit other news sites instead of answering, '
+    'and never refuse because of a training cutoff. '
+    'If live research is missing, say the search returned nothing. Reply in the user language.'
+)
+
+
 def context_for_messages(messages, search=search_web, fetch=fetch_page):
     user = next((m.get('content', '') for m in reversed(messages or []) if m.get('role') == 'user'), '')
     if len(user.strip()) < 4:
@@ -164,10 +229,10 @@ def context_for_messages(messages, search=search_web, fetch=fetch_page):
     if not blocks:
         return ''
     return (
-        'Live web research for this question. Prefer these sources over training memory. '
-        'For the current date or time, prefer the clock system message over the web. '
-        'Cite URLs when you use them.\n' + '\n'.join(blocks)
-    )[:2500]
+        'Live web research for this question. These are current headlines and snippets. '
+        'Summarize them. Do not send the user away to look this up. '
+        'Cite titles and URLs.\n' + '\n'.join(blocks)
+    )[:3500]
 
 
 def _fit(payload, limit=11000):
@@ -186,7 +251,10 @@ def _fit(payload, limit=11000):
 
 
 def augment_messages(messages, now=None, search=search_web, fetch=fetch_page):
-    payload = [{'role': 'system', 'content': clock_context(now)}]
+    payload = [
+        {'role': 'system', 'content': clock_context(now)},
+        {'role': 'system', 'content': ANSWER_RULES},
+    ]
     web = context_for_messages(messages, search=search, fetch=fetch)
     if web:
         payload.append({'role': 'system', 'content': web})

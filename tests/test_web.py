@@ -18,10 +18,27 @@ class WebTests(unittest.TestCase):
             if 'wikipedia.org' in url:
                 return b'{"query":{"search":[{"title":"Riyadh","snippet":"Capital of <span>Saudi</span> Arabia"}]}}'
             return b'{"Heading":"Riyadh","AbstractText":"Capital city.","AbstractURL":"https://example.com/r"}'
-        hits = search_web('Riyadh news today', opener=opener)
+        hits = search_web('Riyadh capital', opener=opener)
         self.assertEqual(hits[0]['title'], 'Riyadh')
         self.assertIn('Capital city', hits[0]['snippet'])
         self.assertTrue(any('wiki' in h['url'] for h in hits))
+
+    def test_news_query_uses_google_rss_not_wikipedia(self):
+        rss = (
+            b'<?xml version="1.0"?><rss><channel>'
+            b'<item><title>Iran strikes Gulf energy sites - Asharq</title>'
+            b'<link>https://news.google.com/rss/articles/x</link>'
+            b'<source>Asharq Al-Awsat</source>'
+            b'<pubDate>Fri, 18 Sep 2026 01:00:00 GMT</pubDate></item>'
+            b'</channel></rss>'
+        )
+        def opener(url):
+            self.assertIn('news.google.com', url)
+            return rss
+        hits = search_web('ابحث عن اخر اخبار الخليج العربي', opener=opener)
+        self.assertEqual(hits[0]['title'], 'Iran strikes Gulf energy sites - Asharq')
+        self.assertIn('Asharq', hits[0]['snippet'])
+
 
     def test_fetch_strips_scripts(self):
         html = b'<html><script>secret()</script><p>Visible article</p></html>'
@@ -65,6 +82,7 @@ class WebTests(unittest.TestCase):
             fetch=lambda url: 'ignored',
         )
         self.assertTrue(any('Live web research' in m['content'] for m in payload))
+        self.assertTrue(any('Never say you cannot access the internet' in m['content'] for m in payload))
 
 
 if __name__ == '__main__':

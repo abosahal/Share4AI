@@ -1,11 +1,11 @@
-# Share4AI 1.1.7
+# Share4AI 1.1.8
 
 ## العربية
-الساعة المحلية تُحقن في كل رسالة حتى لا يجيب النموذج بتاريخ تدريب قديم. البحث في الإنترنت يعمل مع المحادثة. أزرار نسخ المحادثة وإرفاق ملفات نصية/PDF/Word ظاهرة أسفل حقل الكتابة. ثبّت فوق النسخة الحالية؛ النموذج المنزل يبقى.
+النموذج 27B يبقى؛ هو الأنسب لجهاز 8GB/32GB. الإصلاح: أسئلة الأخبار تُجلب من عناوين Google News ويُمنع الرد بـ«لا أملك إنترنت». ثبّت فوق النسخة الحالية دون إعادة تنزيل النموذج.
 
-نزّل Share4AI-Setup-1.1.7-windows-x64.exe.
+نزّل Share4AI-Setup-1.1.8-windows-x64.exe.
 
 ## English
-Each chat now includes this computer's clock so the model cannot answer with a training-cutoff date. Live web lookup is attached to local chat. Copy conversation and attach text/PDF/Word files from the composer. Install over the current copy; the downloaded model stays.
+Keep Qwen3.8 27B; it is the right model for 8GB+32GB. News questions now pull Google News headlines and the model is instructed not to claim it lacks internet. Install over the current copy; the downloaded model stays.
 
-Download Share4AI-Setup-1.1.7-windows-x64.exe.
+Download Share4AI-Setup-1.1.8-windows-x64.exe.
