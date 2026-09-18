@@ -60,7 +60,7 @@ Fits available memory with reserve; benchmark still required|يناسب الذا
 CPU local trial; network sharing requires GPU telemetry and benchmark|تجربة محلية بالمعالج المركزي؛ المشاركة تتطلب قياسات معالج الرسوميات واختبار الأداء
 Not enough free memory or disk; close other workloads and scan again|الذاكرة أو مساحة القرص المتاحة غير كافية؛ أغلق البرامج الأخرى وأعد الفحص
 Downloading and verifying runtime|جارٍ تنزيل محرك التشغيل والتحقق منه
-Installed and SHA256 verified|اكتمل التثبيت والتحقق من SHA256
+Installed and SHA256 verified|اكتمل التثبيت والتحقق من الملفات
 No suitable model recommended|لم يُوصَ بنموذج مناسب
 Install cancelled|أُلغي التثبيت
 Install cancelled before activation|أُلغي التثبيت قبل التفعيل
